@@ -31,9 +31,8 @@ body {
 }
 
 #app {
-    width: 100%;
+    width: 100vw;
     height: 100vh;
-    max-height: 100vh;
     display: flex;
     flex-direction: column;
     padding: 2vmin;
@@ -91,6 +90,10 @@ h1 {
     overflow: hidden; /* Added to prevent child overflow from breaking layout */
 }
 
+.side-panel.vertical-aspect .feature-box {
+    aspect-ratio: 9 / 16;
+}
+
 .feature-box {
     border: 2px solid #0a0;
     background-color: #000;
@@ -98,6 +101,7 @@ h1 {
     aspect-ratio: 16 / 9;
     flex-grow: 1; /* Allow boxes to grow and shrink */
     min-height: 0; /* Important for flex-shrink to work correctly */
+    transition: aspect-ratio 0.3s ease;
 }
 
 .feature-box img {
@@ -116,14 +120,13 @@ h1 {
 
 .vignette {
     width: 90%;
-    padding-bottom: 90%; /* Creates a square aspect ratio */
-    height: 0;
+    max-width: 45vmin; /* Use vmin for better scaling on different aspect ratios */
+    height: auto;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
     overflow: hidden;
     position: relative;
-    box-shadow: inset 0 0 50px 30px #000;
-    max-width: 45vh; /* Limit size based on viewport height */
-    max-height: 45vh;
+    box-shadow: inset 0 0 5vmin 3vmin #000;
 }
 
 .vignette::after {
@@ -134,7 +137,7 @@ h1 {
     right: 0;
     bottom: 0;
     border-radius: 50%;
-    box-shadow: inset 0 0 40px 20px rgba(0,0,0,0.9);
+    box-shadow: inset 0 0 4vmin 2vmin rgba(0,0,0,0.9);
 }
 
 .vignette img {
