@@ -135,6 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function typeTextAppend(el, text, speed = 40) {
+        let i = 0;
+        return new Promise(res => {
+            const tick = () => { el.textContent += text[i++] || ''; i <= text.length ? setTimeout(tick, speed) : res(); };
+            tick();
+        });
+    }
+
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
     function initOverlayFlow() {
         const overlay = document.getElementById('ui-overlay');
         const prompt = document.getElementById('overlay-prompt');
@@ -142,8 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = document.getElementById('main-title');
         const titleText = title.getAttribute('aria-label') || "NO, I'M NOT A HUMAN";
         typeText(prompt, "Are you a human?").then(() => { yesBtn.disabled = false; });
-        yesBtn.addEventListener('click', () => {
-            setupAudio(); typeText(title, titleText, 30);
+        yesBtn.addEventListener('click', async () => {
+            setupAudio();
+            title.textContent = '';
+            await typeText(title, "NO,", 120);
+            await sleep(600);
+            await typeTextAppend(title, " I'M NOT A HUMAN", 60);
             overlay.classList.add('fade-out');
         }, { once: true });
     }
