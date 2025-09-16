@@ -67,11 +67,20 @@ body {
 #app {
     width: 100vw;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr;
+    gap: 2vmin;
     padding: 2vmin;
     position: relative;
     z-index: 2;
+}
+
+.center-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 header {
@@ -93,7 +102,7 @@ h1 {
 h1 .bounce-comma { display:inline-block; animation: commaBounce 2.6s ease-in-out infinite; }
 
 .credits-btn {
-    position: absolute; top: 0; right: 0;
+    position: fixed; top: 0.5rem; right: 0.5rem;
     width: 28px; height: 28px; display: grid; place-items: center;
     background: rgba(204,204,204,0.08); border: 1px solid #ccc; color: #ccc;
     border-radius: 50%; font-size: 0.85rem; line-height: 1; text-decoration: none; z-index: 150;
@@ -116,10 +125,8 @@ h1 .bounce-comma { display:inline-block; animation: commaBounce 2.6s ease-in-out
 
 .content {
     flex-grow: 1;
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
+    display: flex; /* Changed from grid */
     align-items: center;
-    gap: 2vmin;
     padding: 1vmin 0;
     overflow: hidden;
 }
@@ -177,6 +184,7 @@ h1 .bounce-comma { display:inline-block; animation: commaBounce 2.6s ease-in-out
     align-items: center;
     height: 100%;
     gap: 2vmin;
+    width: 100%; /* Ensure it takes full width of its container */
 }
 
 .figure-wrapper {
