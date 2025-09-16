@@ -318,8 +318,8 @@ footer {
 }
 
 .type-line {
-    font-family: 'Roboto', sans-serif;
-    font-size: clamp(1rem, 3vmin, 1.6rem);
+    font-family: 'Creepster', cursive;
+    font-size: clamp(2rem, 6vmin, 3.2rem);
     color: #ccc;
 }
 
