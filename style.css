@@ -386,7 +386,7 @@ footer {
     inset: 0;
     background: transparent;
     display: flex;
-    z-index: 300;
+    z-index: 10001; /* was 300, ensure it's above #loading-overlay (9999) */
     transition: opacity 0.6s ease;
     opacity: 1;
     pointer-events: none; /* Allow interaction with elements below if needed, children will override */
@@ -503,7 +503,7 @@ h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
 @keyframes notPulse { 0%{ color:#f33 } 70%{ color:#ddd } 100%{ color:#ddd } }
 
 #fog-canvas {
-    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    position: fixed; inset: 0; z-index: 10000; pointer-events: none;
     opacity: 1; transition: opacity 1.2s ease;
 }
 

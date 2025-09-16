@@ -225,6 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
             await unlockAudio();
             setupAudio();
             scheduleNextKnock();
+            // fade out the black loading overlay now that user confirmed
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) loadingOverlay.classList.add('hidden');
             title.textContent = '';
             const prefix = document.createElement('span');
             const rest = document.createElement('span');
@@ -369,6 +372,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fogInstance = new FogFX('#fog-canvas');
         fogInstance.start();
 
+        // Start the overlay flow immediately, above the loading overlay
+        initOverlayFlow();
+
         // Initial layout adjustments
         adjustLayout();
         updateBackgroundDrip();
@@ -382,16 +388,12 @@ document.addEventListener('DOMContentLoaded', () => {
             updateBackgroundDrip();
         });
 
-        // Wait for all sounds to load
+        // Wait for all sounds to load (do NOT hide loading overlay here)
         await loadAllSounds();
 
-        // Fade out loading screen
-        loadingOverlay.classList.add('hidden');
-
-        // Start the intro sequence after the loading screen fades
-        loadingOverlay.addEventListener('transitionend', () => {
-            initOverlayFlow();
-        }, { once: true });
+        // hide spinner but keep black overlay until "Yes..." click
+        const spinner = loadingOverlay && loadingOverlay.querySelector('.loader');
+        if (spinner) spinner.style.display = 'none';
     }
 
     main();
