@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rest.innerHTML = rest.textContent.replace('NOT','<span class="not-word">NOT</span>');
             const notEl = rest.querySelector('.not-word');
             notEl.classList.add('appear');
-            setTimeout(()=>{ notEl.style.color = '#ddd'; }, 3000);
+            setTimeout(()=>{ notEl.style.color = '#ddd'; }, 9000);
             pulseNotRandomly(notEl);
             await sleep(250);
             await typeTextAppend(rest, " A HUMAN", 90);
