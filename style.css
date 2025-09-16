@@ -114,10 +114,19 @@ h1 {
 .center-panel {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     height: 100%;
     gap: 2vmin;
+}
+
+.figure-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    min-height: 0;
 }
 
 .figure-container {
@@ -126,6 +135,7 @@ h1 {
     height: auto;
     aspect-ratio: 1 / 1;
     position: relative;
+    margin: 0 auto;
 }
 
 .figure-container img {
