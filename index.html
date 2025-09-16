@@ -8,6 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js"
+      }
+    }
+    </script>
 </head>
 <body>
     <div class="green-filter"></div>
@@ -31,7 +38,7 @@
             <div class="center-panel">
                 <div class="figure-wrapper">
                     <div class="figure-container">
-                        <img src="humanoid_figure.png" alt="Distorted humanoid figure">
+                        <canvas id="humanoid-canvas"></canvas>
                     </div>
                 </div>
                 <div class="center-bottom-container">
