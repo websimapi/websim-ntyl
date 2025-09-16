@@ -93,10 +93,10 @@ h1 {
 h1 .bounce-comma { display:inline-block; animation: commaBounce 2.6s ease-in-out infinite; }
 
 .credits-btn {
-    position: absolute; top: 2vmin; right: 2vmin;
-    width: 34px; height: 34px; display: grid; place-items: center;
+    position: absolute; top: 0; right: 0;
+    width: 28px; height: 28px; display: grid; place-items: center;
     background: rgba(204,204,204,0.08); border: 1px solid #ccc; color: #ccc;
-    border-radius: 50%; font-size: 0.95rem; line-height: 1; text-decoration: none; z-index: 150;
+    border-radius: 50%; font-size: 0.85rem; line-height: 1; text-decoration: none; z-index: 150;
     overflow: hidden; /* For pseudo-element */
 }
 
