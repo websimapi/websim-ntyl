@@ -181,8 +181,8 @@ footer {
 
 .menu button {
     font-family: 'Roboto', sans-serif;
-    font-size: clamp(0.8rem, 2.2vmin, 1rem);
-    padding: 0.8em 1.5em;
+    font-size: clamp(0.6rem, 1.2vmin, 0.7rem);
+    padding: 0.3em 0.8em;
     background-color: transparent;
     border: 2px solid #0f0;
     color: #0f0;
@@ -198,10 +198,10 @@ footer {
 
 .collectibles-container {
     position: relative;
-    width: 25vmin;
-    height: 18vmin;
-    min-width: 150px;
-    min-height: 100px;
+    width: 15vmin;
+    height: 11vmin;
+    min-width: 80px;
+    min-height: 60px;
     flex-grow: 1; /* Allow container to take remaining space */
     display: flex;
     justify-content: flex-end;
