@@ -345,7 +345,7 @@ footer {
 
 h1 .bounce-comma.slow { animation-duration: 4s; animation-iteration-count: 1; animation-timing-function: ease-out; }
 
-h1 .not-word { color:#8b0000; transition: color 2.2s ease; font-weight: 900; }
+h1 .not-word { color:#8b0000; transition: color 1s ease; font-weight: 900; }
 
 h1 .not-word.appear { animation: notPop 1.1s ease-out; }
 
