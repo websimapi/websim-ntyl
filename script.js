@@ -1,3 +1,4 @@
+import { FogFX } from './fog.js';
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Script loaded and running.");
     const AUDIO_DURATION = 95, FADE = 15, FADE_OUT_START = 80;
@@ -207,22 +208,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initOverlayFlow() {
         const overlay = document.getElementById('ui-overlay');
+        const fogCanvas = document.getElementById('fog-canvas');
+        const fog = new FogFX('#fog-canvas'); fog.start();
         const prompt = document.getElementById('overlay-prompt');
         const yesBtn = document.getElementById('overlay-yes');
         const overlayInner = overlay.querySelector('.overlay-inner');
         const title = document.getElementById('main-title');
         const titleText = title.getAttribute('aria-label') || "NO, I'M NOT A HUMAN";
+
         typeText(prompt, "Are you a human?").then(() => { yesBtn.disabled = false; });
         yesBtn.addEventListener('click', async () => {
             overlay.style.pointerEvents = 'none';
-            if(overlayInner) overlayInner.style.pointerEvents = 'auto'; // ensure this can be clicked
-
-            yesBtn.style.display = 'none'; // Hide button immediately on click
+            if(overlayInner) overlayInner.style.pointerEvents = 'auto';
+            yesBtn.style.display = 'none';
             prompt.classList.add('fade');
-            if(overlayInner) overlayInner.style.pointerEvents = 'none'; // and now disable its events
+            if(overlayInner) overlayInner.style.pointerEvents = 'none';
             await unlockAudio();
             setupAudio();
-            playKnock(); // Play first knock immediately
             scheduleNextKnock();
             title.textContent = '';
             const prefix = document.createElement('span');
@@ -240,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(()=>{ notEl.style.color = '#ddd'; }); // fade to white via CSS transition
             pulseNotRandomly(notEl);
             await typing;
-            overlay.classList.add('fade-out');
         }, { once: true });
     }
 
@@ -293,12 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const buttons = document.querySelectorAll('.menu button, .overlay-btn, .credits-btn');
         let staticLoopSound = null;
         let initialSoundSource = null;
-
-        // On the first touch event, disable hover effects for all future interactions
-        document.body.addEventListener('touchstart', function addNoHover() {
-            document.body.classList.remove('has-hover');
-            document.body.removeEventListener('touchstart', addNoHover);
-        }, { once: true });
+        let touchInProgress = false;
 
         const stopAllSounds = () => {
             if (initialSoundSource) {
@@ -322,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (button.disabled) return;
             stopAllSounds();
             button.classList.add('static-bg-active');
-            button.classList.add('active-state');
             const hoverSound = playSound(uiHoverBuffer, 0.2);
             if(hoverSound) initialSoundSource = hoverSound.source;
             staticLoopSound = playSound(tvStaticLoopBuffer, 0.1, null, true, 0.5); // 0.5s fade-in
@@ -331,21 +326,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const handleHoverEnd = (button) => {
             stopAllSounds();
             button.classList.remove('static-bg-active');
-            button.classList.remove('active-state');
         };
 
         buttons.forEach(button => {
             // Mouse events
-            button.addEventListener('mouseenter', (e) => handleHoverStart(e.currentTarget));
-            button.addEventListener('mouseleave', (e) => handleHoverEnd(e.currentTarget));
+            button.addEventListener('mouseenter', (e) => {
+                if (touchInProgress) return; // Don't fire if a touch is happening
+                handleHoverStart(e.currentTarget);
+            });
+            button.addEventListener('mouseleave', (e) => {
+                if (touchInProgress) return;
+                handleHoverEnd(e.currentTarget);
+            });
 
             // Touch events
             button.addEventListener('touchstart', (e) => {
+                touchInProgress = true;
                 handleHoverStart(e.currentTarget);
             }, { passive: true });
 
-            button.addEventListener('touchend', (e) => handleHoverEnd(e.currentTarget));
-            button.addEventListener('touchcancel', (e) => handleHoverEnd(e.currentTarget));
+            button.addEventListener('touchend', (e) => {
+                handleHoverEnd(e.currentTarget);
+                // After a short delay, reset the flag to allow mouse events again.
+                // This prevents mouseenter from firing immediately after touchend on some devices.
+                setTimeout(() => {
+                    touchInProgress = false;
+                }, 100);
+            });
+
+             button.addEventListener('touchcancel', (e) => {
+                handleHoverEnd(e.currentTarget);
+                setTimeout(() => {
+                    touchInProgress = false;
+                }, 100);
+            });
         });
     }
 

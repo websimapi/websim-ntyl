@@ -272,24 +272,7 @@ footer {
     isolation: isolate; /* Create a new stacking context */
 }
 
-.menu button.active-state,
-.overlay-btn.active-state,
-.credits-btn.active-state {
-    background-color: #ccc;
-    color: #000;
-    box-shadow: 0 0 10px #ccc;
-}
-
-body.has-hover .menu button:hover:not(:disabled),
-body.has-hover .overlay-btn:hover:not(:disabled),
-body.has-hover .credits-btn:hover:not(:disabled) {
-    background-color: #ccc;
-    color: #000;
-    box-shadow: 0 0 10px #ccc;
-}
-
 .menu button:hover:not(:disabled) {
-    /* Kept for devices that might not support the media query but have hover */
     background-color: #ccc;
     color: #000;
     box-shadow: 0 0 10px #ccc;
@@ -350,21 +333,63 @@ body.has-hover .credits-btn:hover:not(:disabled) {
      --rotation: 20deg;
 }
 
-.audio-unlock {
-  position: fixed; right: 1rem; bottom: 1rem;
-  padding: 0.5rem 0.75rem; background: rgba(0,0,0,0.6);
-  border: 1px solid #ccc; color: #ccc; z-index: 200; cursor: pointer;
+.fog-overlay { display: none !important; }
+
+.fog-overlay.left {
+    left: 0;
 }
+.fog-overlay.right {
+    right: 0;
+}
+
+.fog-overlay::before,
+.fog-overlay::after {
+    content: "";
+    position: absolute;
+    inset: -12%;
+    pointer-events: none;
+    background:
+        radial-gradient(100% 60% at 30% 20%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0) 70%) ,
+        radial-gradient(90% 55% at 70% 60%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 45%, rgba(255,255,255,0) 75%);
+    filter: url(#fog-noise) blur(2px);
+    opacity: 0.7;
+    mix-blend-mode: screen;
+}
+
+.fog-overlay::before { animation: fogDriftA 18s ease-in-out infinite alternate; }
+.fog-overlay::after  { animation: fogDriftB 26s ease-in-out infinite alternate; opacity: 0.5; }
+
+@keyframes fogDriftA {
+  0%   { transform: translate3d(0,0,0) scale(1.0); }
+  50%  { transform: translate3d(2%, -1%, 0) scale(1.05); }
+  100% { transform: translate3d(-3%, 2%, 0) scale(1.08); }
+}
+
+@keyframes fogDriftB {
+  0%   { transform: translate3d(0,0,0) scale(1.0) rotate(0.2deg); }
+  50%  { transform: translate3d(-2%, 1.5%, 0) scale(1.06) rotate(-0.2deg); }
+  100% { transform: translate3d(3%, -1%, 0) scale(1.1) rotate(0.4deg); }
+}
+
+.ui-overlay.revealing .fog-overlay.left {
+    transform: translateX(-100%);
+}
+.ui-overlay.revealing .fog-overlay.right {
+    transform: translateX(100%);
+}
+
+.ui-overlay.revealing #fog-canvas,
+.ui-overlay.fade-out #fog-canvas { opacity: 0; }
 
 .ui-overlay {
     position: fixed;
     inset: 0;
     background: transparent;
-    display: grid;
-    place-items: center;
+    display: flex;
     z-index: 300;
     transition: opacity 0.6s ease;
     opacity: 1;
+    pointer-events: none; /* Allow interaction with elements below if needed, children will override */
 }
 
 .ui-overlay.fade-out {
@@ -373,11 +398,20 @@ body.has-hover .credits-btn:hover:not(:disabled) {
 }
 
 .overlay-inner {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
     align-items: center;
     pointer-events: auto; /* Allow clicks within the inner container */
+    padding: 2vmin;
+    position: relative; /* Ensure it's on top of the fog */
+    z-index: 2;
+}
+
+#overlay-prompt {
+    flex-grow: 0;
+    padding-top: 2rem;
 }
 
 .type-line {
@@ -397,6 +431,7 @@ body.has-hover .credits-btn:hover:not(:disabled) {
     cursor: pointer;
     position: relative; /* For pseudo-element */
     overflow: hidden; /* For pseudo-element */
+    margin-top: 1.5rem;
 }
 
 .overlay-btn:disabled {
@@ -466,6 +501,11 @@ h1 .not-word { color:#f33; transition: color 1.5s ease; }
 h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
 
 @keyframes notPulse { 0%{ color:#f33 } 70%{ color:#ddd } 100%{ color:#ddd } }
+
+#fog-canvas {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: 1; transition: opacity 1.2s ease;
+}
 
 @media (max-width: 768px) and (orientation: portrait) {
     #app {

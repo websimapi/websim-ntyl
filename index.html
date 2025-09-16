@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="has-hover">
+<body>
     <div id="loading-overlay">
         <div class="loader"></div>
     </div>
@@ -33,6 +33,18 @@
                 <feMerge>
                     <feMergeNode in="displaced"/>
                 </feMerge>
+            </filter>
+            <!-- New dynamic fog filter -->
+            <filter id="fog-noise" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="3" seed="8" result="noise">
+                    <animate attributeName="baseFrequency" values="0.01 0.018;0.014 0.022;0.012 0.02" dur="14s" repeatCount="indefinite"/>
+                </feTurbulence>
+                <feTurbulence type="fractalNoise" baseFrequency="0.008 0.016" numOctaves="5" seed="13" result="noise2">
+                    <animate attributeName="baseFrequency" values="0.007 0.014;0.011 0.02;0.008 0.016" dur="18s" repeatCount="indefinite"/>
+                </feTurbulence>
+                <feBlend mode="screen" in="noise" in2="noise2" result="mix"/>
+                <feGaussianBlur in="mix" stdDeviation="0.8" result="softNoise"/>
+                <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="28" xChannelSelector="R" yChannelSelector="G"/>
             </filter>
         </defs>
     </svg>
@@ -97,10 +109,11 @@
             <div class="feature-box"><img src="mouth_grit.png" alt="Teeth-grit mouth"></div>
         </div>
     </div>
-    <a href="https://store.steampowered.com/app/3180070/No_Im_not_a_Human/" target="_blank" class="credits-btn" aria-label="Original Inspired By — Trioskaz' No, I'm Not A Human" data-tooltip="Original Inspired By&#10;Trioskaz' No, I'm not a Human">!</a>
+    <a href="https://store.steampowered.com/app/3180070/No_Im_not_a_Human/" target="_blank" class="credits-btn" aria-label="Original Inspired By — Trioskaz' No, I'm Not A Human" data-tooltip="Original Inspired By&#10;Trioskaz' No, I'm Not A Human">!</a>
     <script type="module" src="script.js"></script>
     <button id="audio-unlock" class="audio-unlock" hidden>Enable Audio</button>
     <div class="ui-overlay" id="ui-overlay" aria-modal="true" role="dialog">
+        <canvas id="fog-canvas" aria-hidden="true"></canvas>
         <div class="overlay-inner">
             <p id="overlay-prompt" class="type-line" aria-live="polite"></p>
             <button id="overlay-yes" class="overlay-btn" disabled>Yes...</button>
