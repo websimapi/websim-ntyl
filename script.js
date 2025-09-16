@@ -332,18 +332,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initial adjustment
-    adjustLayout();
-    updateBackgroundDrip();
-    initSideCarousels();
-    startCarousels();
+    async function main() {
+        const loadingOverlay = document.getElementById('loading-overlay');
 
-    // Adjust on window resize
-    window.addEventListener('resize', () => {
+        // Initial layout adjustments
         adjustLayout();
         updateBackgroundDrip();
-    });
-    initOverlayFlow();
-    loadAllSounds();
-    initButtonHovers();
+        initSideCarousels();
+        startCarousels();
+        initButtonHovers();
+
+        // Adjust on window resize
+        window.addEventListener('resize', () => {
+            adjustLayout();
+            updateBackgroundDrip();
+        });
+
+        // Wait for all sounds to load
+        await loadAllSounds();
+
+        // Fade out loading screen
+        loadingOverlay.classList.add('hidden');
+
+        // Start the intro sequence after the loading screen fades
+        loadingOverlay.addEventListener('transitionend', () => {
+            initOverlayFlow();
+        }, { once: true });
+    }
+
+    main();
 });
