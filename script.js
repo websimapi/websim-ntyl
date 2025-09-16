@@ -209,12 +209,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const overlay = document.getElementById('ui-overlay');
         const prompt = document.getElementById('overlay-prompt');
         const yesBtn = document.getElementById('overlay-yes');
+        const overlayInner = overlay.querySelector('.overlay-inner');
         const title = document.getElementById('main-title');
         const titleText = title.getAttribute('aria-label') || "NO, I'M NOT A HUMAN";
         typeText(prompt, "Are you a human?").then(() => { yesBtn.disabled = false; });
         yesBtn.addEventListener('click', async () => {
+            overlay.style.pointerEvents = 'none';
+            if(overlayInner) overlayInner.style.pointerEvents = 'auto'; // ensure this can be clicked
+
             yesBtn.style.display = 'none'; // Hide button immediately on click
             prompt.classList.add('fade');
+            if(overlayInner) overlayInner.style.pointerEvents = 'none'; // and now disable its events
             await unlockAudio();
             setupAudio();
             scheduleNextKnock();
