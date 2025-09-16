@@ -153,11 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const titleText = title.getAttribute('aria-label') || "NO, I'M NOT A HUMAN";
         typeText(prompt, "Are you a human?").then(() => { yesBtn.disabled = false; });
         yesBtn.addEventListener('click', async () => {
+            prompt.classList.add('fade');
             setupAudio();
             title.textContent = '';
-            await typeText(title, "NO,", 120);
-            await sleep(600);
-            await typeTextAppend(title, " I'M NOT A HUMAN", 60);
+            await typeText(title, "NO,", 180);
+            await sleep(900);
+            await typeTextAppend(title, " I'M NOT A HUMAN", 90);
             overlay.classList.add('fade-out');
         }, { once: true });
     }

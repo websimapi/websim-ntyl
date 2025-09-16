@@ -321,7 +321,10 @@ footer {
     font-family: 'Creepster', cursive;
     font-size: clamp(2rem, 6vmin, 3.2rem);
     color: #ccc;
+    transition: opacity 0.6s ease;
 }
+
+.type-line.fade { opacity: 0; }
 
 .overlay-btn {
     padding: 0.5em 1.2em;
