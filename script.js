@@ -7,18 +7,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const knockSoundUrls = ['knock.mp3', 'knock_2.mp3', 'knock_3.mp3', 'knock_4.mp3'];
     let knockBuffers = [];
+    let uiHoverBuffer;
 
-    async function loadKnockSounds() {
-        for (const url of knockSoundUrls) {
-            try {
-                const response = await fetch(url);
-                const arrayBuffer = await response.arrayBuffer();
-                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-                knockBuffers.push(audioBuffer);
-            } catch (e) {
-                console.error(`Failed to load or decode knock sound: ${url}`, e);
-            }
+    async function loadSound(url) {
+        try {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            return await audioCtx.decodeAudioData(arrayBuffer);
+        } catch (e) {
+            console.error(`Failed to load or decode sound: ${url}`, e);
+            return null;
         }
+    }
+
+    async function loadAllSounds() {
+        knockBuffers = await Promise.all(knockSoundUrls.map(url => loadSound(url)));
+        knockBuffers = knockBuffers.filter(b => b); // remove nulls on failure
+        uiHoverBuffer = await loadSound('ui_hover.mp3');
     }
 
     function setupAudio() {
@@ -231,18 +236,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
     }
 
-    function playKnock() {
-        if (!audioUnlocked || knockBuffers.length === 0) return;
+    function playSound(buffer) {
+        if (!audioUnlocked || !buffer) return;
         
         try {
             const source = audioCtx.createBufferSource();
-            const randomIndex = Math.floor(Math.random() * knockBuffers.length);
-            source.buffer = knockBuffers[randomIndex];
+            source.buffer = buffer;
             source.connect(audioCtx.destination);
             source.start(0);
         } catch (e) {
-            console.error("Could not play knock sound:", e);
+            console.error("Could not play sound:", e);
         }
+    }
+
+    function playKnock() {
+        if (knockBuffers.length === 0) return;
+        const randomIndex = Math.floor(Math.random() * knockBuffers.length);
+        playSound(knockBuffers[randomIndex]);
     }
 
     function scheduleNextKnock() {
@@ -251,6 +261,17 @@ document.addEventListener('DOMContentLoaded', () => {
             playKnock();
             scheduleNextKnock(); // schedule the next one
         }, randomInterval);
+    }
+
+    function initButtonHovers() {
+        const buttons = document.querySelectorAll('.menu button, .overlay-btn, .credits-btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                if (!button.disabled) {
+                    playSound(uiHoverBuffer);
+                }
+            });
+        });
     }
 
     // Initial adjustment
@@ -265,5 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateBackgroundDrip();
     });
     initOverlayFlow();
-    loadKnockSounds();
+    loadAllSounds();
+    initButtonHovers();
 });
