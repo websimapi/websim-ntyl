@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const buttons = document.querySelectorAll('.menu button, .overlay-btn, .credits-btn');
         let staticLoopSound = null;
         let initialSoundSource = null;
-        let touchInteractionEndTimer = null;
+        let touchInProgress = false;
 
         const stopAllSounds = () => {
             if (initialSoundSource) {
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (button.disabled) return;
             stopAllSounds();
             button.classList.add('static-bg-active');
-            button.classList.add('button-active');
+            button.classList.add('active-state');
             const hoverSound = playSound(uiHoverBuffer, 0.2);
             if(hoverSound) initialSoundSource = hoverSound.source;
             staticLoopSound = playSound(tvStaticLoopBuffer, 0.1, null, true, 0.5); // 0.5s fade-in
@@ -325,71 +325,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const handleHoverEnd = (button) => {
             stopAllSounds();
             button.classList.remove('static-bg-active');
-            button.classList.remove('button-active');
+            button.classList.remove('active-state');
         };
 
         buttons.forEach(button => {
             // Mouse events
             button.addEventListener('mouseenter', (e) => {
-                if (touchInteractionEndTimer) return; // Don't fire if a touch just happened
+                if (touchInProgress) return; // Don't fire if a touch is happening
                 handleHoverStart(e.currentTarget);
             });
             button.addEventListener('mouseleave', (e) => {
-                if (touchInteractionEndTimer) return;
+                if (touchInProgress) return;
                 handleHoverEnd(e.currentTarget);
             });
 
             // Touch events
             button.addEventListener('touchstart', (e) => {
-                clearTimeout(touchInteractionEndTimer);
-                touchInteractionEndTimer = null;
+                touchInProgress = true;
                 handleHoverStart(e.currentTarget);
             }, { passive: true });
 
-            const handleTouchEnd = (e) => {
+            button.addEventListener('touchend', (e) => {
                 handleHoverEnd(e.currentTarget);
-                // After a short delay, re-enable mouse events.
+                // After a short delay, reset the flag to allow mouse events again.
                 // This prevents mouseenter from firing immediately after touchend on some devices.
-                clearTimeout(touchInteractionEndTimer);
-                touchInteractionEndTimer = setTimeout(() => {
-                    touchInteractionEndTimer = null;
-                }, 300);
-            };
+                setTimeout(() => {
+                    touchInProgress = false;
+                }, 100);
+            });
 
-            button.addEventListener('touchend', handleTouchEnd);
-            button.addEventListener('touchcancel', handleTouchEnd);
+             button.addEventListener('touchcancel', (e) => {
+                handleHoverEnd(e.currentTarget);
+                setTimeout(() => {
+                    touchInProgress = false;
+                }, 100);
+            });
         });
-    }
-
-    function initCollectionToggle() {
-        const collectionButton = document.getElementById('collection-button');
-        const collectiblesContainer = document.getElementById('collectibles-container');
-        if (collectionButton && collectiblesContainer) {
-            const toggleCollection = () => {
-                const isVisible = collectiblesContainer.style.opacity === '1';
-                if (isVisible) {
-                    collectiblesContainer.style.opacity = '0';
-                    collectiblesContainer.style.pointerEvents = 'none';
-                    collectionButton.classList.remove('button-active');
-                } else {
-                    collectiblesContainer.style.opacity = '1';
-                    collectiblesContainer.style.pointerEvents = 'auto';
-                    collectionButton.classList.add('button-active');
-                }
-            };
-
-            collectionButton.addEventListener('click', toggleCollection);
-
-            // Hide initially on mobile portrait
-            if (window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches) {
-                collectiblesContainer.style.opacity = '0';
-                collectiblesContainer.style.pointerEvents = 'none';
-                collectionButton.classList.remove('button-active');
-            } else {
-                 collectiblesContainer.style.opacity = '1';
-                 collectiblesContainer.style.pointerEvents = 'auto';
-            }
-        }
     }
 
     async function main() {
@@ -401,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initSideCarousels();
         startCarousels();
         initButtonHovers();
-        initCollectionToggle();
 
         // Adjust on window resize
         window.addEventListener('resize', () => {

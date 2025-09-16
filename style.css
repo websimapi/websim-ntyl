@@ -272,20 +272,28 @@ footer {
     isolation: isolate; /* Create a new stacking context */
 }
 
-/* Base active state for all devices (touch included) */
-.menu button.button-active:not(:disabled) {
+.menu button.active-state,
+.overlay-btn.active-state,
+.credits-btn.active-state {
     background-color: #ccc;
     color: #000;
     box-shadow: 0 0 10px #ccc;
 }
 
-/* Hover-specific styles for devices that support it */
 @media (hover: hover) {
-    .menu button:hover:not(:disabled) {
+    .menu button:hover:not(:disabled),
+    .overlay-btn:hover:not(:disabled),
+    .credits-btn:hover:not(:disabled) {
         background-color: #ccc;
         color: #000;
         box-shadow: 0 0 10px #ccc;
     }
+}
+
+.menu button:hover:not(:disabled) {
+    background-color: #ccc;
+    color: #000;
+    box-shadow: 0 0 10px #ccc;
 }
 
 .menu button:disabled {
