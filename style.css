@@ -449,3 +449,28 @@ h1 .not-word { color:#f33; transition: color 1.5s ease; }
 h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
 
 @keyframes notPulse { 0%{ color:#f33 } 70%{ color:#ddd } 100%{ color:#ddd } }
+
+@media (max-width: 768px) and (orientation: portrait) {
+    #app {
+        grid-template-columns: 1fr 2.5fr 1fr; /* Give center more space on portrait */
+    }
+
+    .center-bottom-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 4vmin;
+    }
+
+    .menu {
+        flex-direction: column;
+        align-items: stretch; /* make buttons same width */
+        width: 80%;
+        max-width: 300px;
+        order: 2; /* Move menu below cards */
+    }
+
+    .collectibles-container {
+        order: 1; /* Move cards above menu */
+        margin-bottom: 2vmin;
+    }
+}
