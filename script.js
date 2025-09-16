@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const knockSoundUrls = ['knock.mp3', 'knock_2.mp3', 'knock_3.mp3', 'knock_4.mp3'];
     let knockBuffers = [];
     let uiHoverBuffer;
+    let tvStaticLoopBuffer;
 
     async function loadSound(url) {
         try {
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         knockBuffers = await Promise.all(knockSoundUrls.map(url => loadSound(url)));
         knockBuffers = knockBuffers.filter(b => b); // remove nulls on failure
         uiHoverBuffer = await loadSound('ui_hover.mp3');
+        tvStaticLoopBuffer = await loadSound('tv_static_loop.mp3');
     }
 
     function setupAudio() {
@@ -236,16 +238,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
     }
 
-    function playSound(buffer) {
-        if (!audioUnlocked || !buffer) return;
+    function playSound(buffer, volume = 1.0, onEndedCallback = null, loop = false, fadeInDuration = 0) {
+        if (!audioUnlocked || !buffer) return null;
         
         try {
             const source = audioCtx.createBufferSource();
             source.buffer = buffer;
-            source.connect(audioCtx.destination);
+            source.loop = loop;
+
+            const gainNode = audioCtx.createGain();
+            if (fadeInDuration > 0) {
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + fadeInDuration);
+            } else {
+                gainNode.gain.value = volume;
+            }
+
+            source.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
             source.start(0);
+
+            if (onEndedCallback && !loop) {
+                source.addEventListener('ended', onEndedCallback, { once: true });
+            }
+
+            return { source, gainNode };
         } catch (e) {
             console.error("Could not play sound:", e);
+            return null;
         }
     }
 
@@ -265,11 +285,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initButtonHovers() {
         const buttons = document.querySelectorAll('.menu button, .overlay-btn, .credits-btn');
+        let staticLoopSound = null;
+        let initialSoundSource = null;
+
+        const stopAllSounds = () => {
+            if (initialSoundSource) {
+                try { initialSoundSource.stop(); } catch (e) { /* ignore */ }
+                initialSoundSource = null;
+            }
+            if (staticLoopSound) {
+                const { source, gainNode } = staticLoopSound;
+                // Fade out
+                const fadeOutDuration = 0.2;
+                gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + fadeOutDuration);
+                setTimeout(() => {
+                    try { source.stop(); } catch (e) { /* ignore */ }
+                }, fadeOutDuration * 1000);
+                staticLoopSound = null;
+            }
+        };
+
         buttons.forEach(button => {
             button.addEventListener('mouseenter', () => {
-                if (!button.disabled) {
-                    playSound(uiHoverBuffer);
-                }
+                if (button.disabled) return;
+                
+                stopAllSounds();
+
+                button.classList.add('static-bg-active');
+                
+                const hoverSound = playSound(uiHoverBuffer, 0.2);
+                if(hoverSound) initialSoundSource = hoverSound.source;
+
+                staticLoopSound = playSound(tvStaticLoopBuffer, 0.1, null, true, 0.5); // 0.5s fade-in
+            });
+
+            button.addEventListener('mouseleave', () => {
+                stopAllSounds();
+                button.classList.remove('static-bg-active');
             });
         });
     }

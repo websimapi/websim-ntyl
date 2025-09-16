@@ -18,6 +18,30 @@ body {
     background-position: center;
 }
 
+.static-overlay {
+    display: none; /* No longer needed */
+}
+
+@keyframes static-move {
+	0% { transform: translateX(0) translateY(0); }
+	10% { transform: translateX(-5px) translateY(5px); }
+	20% { transform: translateX(5px) translateY(-5px); }
+	30% { transform: translateX(-7px) translateY(7px); }
+	40% { transform: translateX(7px) translateY(-7px); }
+	50% { transform: translateX(-5px) translateY(-10px); }
+	60% { transform: translateX(5px) translateY(10px); }
+	70% { transform: translateX(-10px) translateY(5px); }
+	80% { transform: translateX(10px) translateY(-5px); }
+	90% { transform: translateX(-7px) translateY(-7px); }
+	100% { transform: translateX(7px) translateY(7px); }
+}
+
+.static-overlay.active {
+    opacity: 0.1;
+    background-image: url(static_noise.png);
+    animation: static-move 75ms linear infinite;
+}
+
 .green-filter {
     position: fixed;
     top: 0;
@@ -73,6 +97,8 @@ h1 .bounce-comma { display:inline-block; animation: commaBounce 2.6s ease-in-out
     width: 34px; height: 34px; display: grid; place-items: center;
     background: rgba(204,204,204,0.08); border: 1px solid #ccc; color: #ccc;
     border-radius: 50%; font-size: 0.95rem; line-height: 1; text-decoration: none; z-index: 150;
+    position: relative; /* For pseudo-element */
+    overflow: hidden; /* For pseudo-element */
 }
 
 .credits-btn:hover {
@@ -234,6 +260,9 @@ footer {
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
+    position: relative; /* For pseudo-element */
+    overflow: hidden; /* For pseudo-element */
+    isolation: isolate; /* Create a new stacking context */
 }
 
 .menu button:hover:not(:disabled) {
@@ -341,11 +370,37 @@ footer {
     border: 2px solid #ccc;
     color: #ccc;
     cursor: pointer;
+    position: relative; /* For pseudo-element */
+    overflow: hidden; /* For pseudo-element */
 }
 
 .overlay-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.menu button::before,
+.credits-btn::before,
+.overlay-btn::before {
+    content: '';
+    position: absolute;
+    top: -10%; left: -10%;
+    width: 120%; height: 120%;
+    pointer-events: none;
+    z-index: -1; /* Position behind the text */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    will-change: transform;
+    background-image: url(static_noise.png);
+    background-color: rgba(0, 180, 0, 0.4);
+    background-blend-mode: screen;
+}
+
+.menu button.static-bg-active::before,
+.credits-btn.static-bg-active::before,
+.overlay-btn.static-bg-active::before {
+    opacity: 1;
+    animation: static-move 75ms linear infinite;
 }
 
 @keyframes commaBounce { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-6px) } }
