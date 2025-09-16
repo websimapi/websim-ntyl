@@ -30,12 +30,24 @@ body {
     z-index: 100;
 }
 
+.background-drip {
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('background.png');
+    background-size: cover; background-position: center;
+    filter: url(#drip-displace);
+    clip-path: inset(70% 0 0 0);
+    pointer-events: none; z-index: 0;
+}
+
 #app {
     width: 100vw;
     height: 100vh;
     display: flex;
     flex-direction: column;
     padding: 2vmin;
+    position: relative;
+    z-index: 2;
 }
 
 header {
@@ -124,7 +136,7 @@ h1 {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Align container to the bottom */
+    justify-content: center;
     width: 100%;
     min-height: 0;
 }
@@ -136,7 +148,7 @@ h1 {
     aspect-ratio: 1 / 1;
     position: relative;
     margin: 0 auto;
-    margin-bottom: -15%; /* Pull up to hide extended part in layout */
+    overflow: visible;
 }
 
 .figure-container img {
@@ -146,17 +158,19 @@ h1 {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
 
-.figure-container canvas {
+.figure-container .drip-layer {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 130%; /* Make canvas taller to allow drips to render below */
+    inset: 0;
     object-fit: contain;
+    filter: url(#drip-displace);
+    mask-image: linear-gradient(to bottom, transparent 0%, transparent 65%, black 85%, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 65%, black 85%, black 100%);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .center-bottom-container {
