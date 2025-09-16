@@ -9,7 +9,7 @@ body {
     color: #ccc;
     background-color: #020502;
     overflow: hidden;
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -66,7 +66,7 @@ body {
 
 #app {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
     grid-template-rows: 1fr;
@@ -505,6 +505,47 @@ h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
 #fog-canvas {
     position: fixed; inset: 0; z-index: 10000; pointer-events: none;
     opacity: 1; transition: opacity 1.2s ease;
+}
+
+#cutscene {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: none;
+    z-index: 10002;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+}
+
+#cutscene img, #cutscene canvas {
+    width: 100vw;
+    height: 100dvh;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 9s ease-in-out;
+    image-rendering: pixelated;
+    filter: contrast(1.15) saturate(1.05) brightness(0.98);
+}
+
+#cutscene canvas.reveal, #cutscene img.reveal {
+    opacity: 1;
+}
+
+#cutscene .cutscene-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+}
+
+#cutscene::after {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.35) 0, rgba(0,0,0,0.35) 1px, transparent 2px, transparent 4px);
+    opacity: 0.12;
+    mix-blend-mode: multiply;
 }
 
 @media (max-width: 768px) and (orientation: portrait) {

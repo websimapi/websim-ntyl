@@ -1,4 +1,5 @@
 import { FogFX } from './fog.js';
+import { applyPosterizeToImage } from './posterize.js';
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Script loaded and running.");
     const AUDIO_DURATION = 95, FADE = 15, FADE_OUT_START = 80;
@@ -6,11 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioUnlocked = false;
     let backgroundAudioElement;
     let fogInstance;
+    let cutsceneAudio;
 
     const knockSoundUrls = ['knock.mp3', 'knock_2.mp3', 'knock_3.mp3', 'knock_4.mp3'];
     let knockBuffers = [];
     let uiHoverBuffer;
     let tvStaticLoopBuffer;
+    let knockTimeoutId = null, knockingActive = false, primaryKnockBuffer = null;
 
     async function loadSound(url) {
         try {
@@ -28,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         knockBuffers = knockBuffers.filter(b => b); // remove nulls on failure
         uiHoverBuffer = await loadSound('ui_hover.mp3');
         tvStaticLoopBuffer = await loadSound('tv_static_loop.mp3');
+        primaryKnockBuffer = await loadSound('knock.mp3');
     }
 
     function setupAudio() {
@@ -285,11 +289,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function scheduleNextKnock() {
-        const randomInterval = Math.random() * (10000 - 3000) + 3000; // between 3 and 10 seconds
-        setTimeout(() => {
-            playKnock();
-            scheduleNextKnock(); // schedule the next one
-        }, randomInterval);
+        knockingActive = true;
+        const randomInterval = Math.random() * (10000 - 3000) + 3000;
+        knockTimeoutId = setTimeout(() => { if (!knockingActive) return; playKnock(); scheduleNextKnock(); }, randomInterval);
+    }
+
+    function stopKnocks() {
+        knockingActive = false;
+        if (knockTimeoutId) { clearTimeout(knockTimeoutId); knockTimeoutId = null; }
     }
 
     function initButtonHovers() {
@@ -365,6 +372,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function startCutscene(){
+        const cs=document.getElementById('cutscene'), img=document.getElementById('cutscene-image');
+        const canvas=document.getElementById('cutscene-canvas');
+        const loading=cs.querySelector('.cutscene-loading'); cs.style.display='flex'; loading.style.display='grid';
+        img.onload=()=>{ loading.style.display='none'; applyPosterizeToImage(canvas, img, 5.0, 0.12); canvas.classList.add('reveal'); img.style.display='none'; };
+        img.src='cutscene_landscape.png';
+        if(backgroundAudioElement) { try{ backgroundAudioElement.pause(); }catch(e){} }
+        cutsceneAudio=new Audio('Distant Transmission - Sonauto.ai.ogg'); const src=audioCtx.createMediaElementSource(cutsceneAudio);
+        const g=audioCtx.createGain(); g.gain.value=0; src.connect(g).connect(audioCtx.destination);
+        await audioCtx.resume(); await cutsceneAudio.play().catch(()=>{});
+        g.gain.linearRampToValueAtTime(1, audioCtx.currentTime+7);
+        setTimeout(()=>{ g.gain.cancelScheduledValues(audioCtx.currentTime); g.gain.linearRampToValueAtTime(0, audioCtx.currentTime+7); }, (115-7)*1000);
+    }
+
     async function main() {
         const loadingOverlay = document.getElementById('loading-overlay');
 
@@ -381,6 +402,15 @@ document.addEventListener('DOMContentLoaded', () => {
         initSideCarousels();
         startCarousels();
         initButtonHovers();
+
+        // New Game -> start cutscene
+        const newGameBtn = Array.from(document.querySelectorAll('.menu button')).find(b=>b.textContent.trim()==='New Game');
+        if(newGameBtn){
+            newGameBtn.addEventListener('click', async ()=>{
+                newGameBtn.disabled=true; stopKnocks(); if(primaryKnockBuffer) playSound(primaryKnockBuffer, 1.0);
+                await startCutscene();
+            });
+        }
 
         // Adjust on window resize
         window.addEventListener('resize', () => {
