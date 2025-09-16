@@ -145,6 +145,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
+    function wrapComma(spanEl){
+        const t = spanEl.textContent;
+        const idx = t.lastIndexOf(',');
+        if (idx === -1) return null;
+        spanEl.textContent = '';
+        spanEl.append(t.slice(0, idx));
+        const comma = document.createElement('span');
+        comma.className = 'bounce-comma';
+        comma.textContent = ',';
+        spanEl.appendChild(comma);
+        spanEl.append(t.slice(idx+1));
+        return comma;
+    }
+
+    function pulseNotRandomly(notEl){
+        setInterval(() => {
+            notEl.classList.add('pulse-red');
+            setTimeout(()=>notEl.classList.remove('pulse-red'), 1300);
+        }, 12000 + Math.random()*6000);
+    }
+
+    function waitForNot(el){
+        return new Promise(res=>{
+            const id = setInterval(()=>{
+                if (el.textContent.includes('NOT')){ clearInterval(id); res(); }
+            }, 50);
+        });
+    }
+
     function initOverlayFlow() {
         const overlay = document.getElementById('ui-overlay');
         const prompt = document.getElementById('overlay-prompt');
@@ -156,9 +185,21 @@ document.addEventListener('DOMContentLoaded', () => {
             prompt.classList.add('fade');
             setupAudio();
             title.textContent = '';
-            await typeText(title, "NO,", 180);
+            const prefix = document.createElement('span');
+            const rest = document.createElement('span');
+            title.append(prefix, rest);
+            await typeText(prefix, "NO,", 180);
+            const commaEl = wrapComma(prefix);
             await sleep(900);
-            await typeTextAppend(title, " I'M NOT A HUMAN", 90);
+            if (commaEl){ commaEl.classList.add('slow'); }
+            const typing = typeTextAppend(rest, " I'M NOT A HUMAN", 90);
+            await waitForNot(rest);
+            // wrap NOT and handle initial red fade to white
+            rest.innerHTML = rest.textContent.replace('NOT','<span class="not-word">NOT</span>');
+            const notEl = rest.querySelector('.not-word');
+            requestAnimationFrame(()=>{ notEl.style.color = '#ddd'; }); // fade to white via CSS transition
+            pulseNotRandomly(notEl);
+            await typing;
             overlay.classList.add('fade-out');
         }, { once: true });
     }

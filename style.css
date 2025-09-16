@@ -65,6 +65,8 @@ h1 {
     color: #ddd;
 }
 
+h1 .bounce-comma { display:inline-block; animation: commaBounce 2.6s ease-in-out infinite; }
+
 .credits-btn {
     position: absolute; top: 0.75vmin; right: 1vmin;
     width: 34px; height: 34px; display: grid; place-items: center;
@@ -338,3 +340,13 @@ footer {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+@keyframes commaBounce { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-6px) } }
+
+h1 .bounce-comma.slow { animation-duration: 4s; animation-iteration-count: 1; animation-timing-function: ease-out; }
+
+h1 .not-word { color:#f33; transition: color 1.5s ease; }
+
+h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
+
+@keyframes notPulse { 0%{ color:#f33 } 70%{ color:#ddd } 100%{ color:#ddd } }
