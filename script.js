@@ -222,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(overlayInner) overlayInner.style.pointerEvents = 'none'; // and now disable its events
             await unlockAudio();
             setupAudio();
+            playKnock(); // Play first knock immediately
             scheduleNextKnock();
             title.textContent = '';
             const prefix = document.createElement('span');
