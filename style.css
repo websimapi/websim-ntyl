@@ -33,20 +33,22 @@ body {
 #app {
     width: 100%;
     height: 100vh;
+    max-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 2rem;
+    padding: 2vmin;
 }
 
 header {
     text-align: center;
     position: relative;
-    padding-bottom: 1rem;
+    padding-bottom: 1vmin;
+    flex-shrink: 0;
 }
 
 h1 {
     font-family: 'Creepster', cursive;
-    font-size: 4rem;
+    font-size: clamp(2rem, 6vw, 4rem);
     letter-spacing: 0.2rem;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
     color: #9f9;
@@ -54,14 +56,14 @@ h1 {
 
 .credits-btn {
     position: absolute;
-    top: 10px;
-    right: 20px;
-    padding: 8px 16px;
+    top: 1vmin;
+    right: 2vmin;
+    padding: 0.5em 1em;
     background-color: rgba(15, 255, 15, 0.1);
     border: 1px solid #0f0;
     color: #0f0;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: clamp(0.7rem, 2vmin, 0.9rem);
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -70,20 +72,20 @@ h1 {
     color: #000;
 }
 
-
 .content {
     flex-grow: 1;
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
     align-items: center;
-    gap: 2rem;
-    padding: 1rem 0;
+    gap: 2vmin;
+    padding: 1vmin 0;
+    overflow: hidden;
 }
 
 .side-panel {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5vmin;
     height: 100%;
     justify-content: space-around;
 }
@@ -106,15 +108,19 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%;
 }
 
 .vignette {
-    width: 400px;
-    height: 400px;
+    width: 90%;
+    padding-bottom: 90%; /* Creates a square aspect ratio */
+    height: 0;
     border-radius: 50%;
     overflow: hidden;
     position: relative;
     box-shadow: inset 0 0 50px 30px #000;
+    max-width: 45vh; /* Limit size based on viewport height */
+    max-height: 45vh;
 }
 
 .vignette::after {
@@ -129,6 +135,9 @@ h1 {
 }
 
 .vignette img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -138,20 +147,22 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    padding-top: 1rem;
+    padding-top: 1vmin;
     position: relative;
-    height: 100px;
+    flex-shrink: 0;
+    height: auto;
 }
 
 .menu {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .menu button {
     font-family: 'Roboto', sans-serif;
-    font-size: 1rem;
-    padding: 0.8rem 1.5rem;
+    font-size: clamp(0.8rem, 2.2vmin, 1rem);
+    padding: 0.8em 1.5em;
     background-color: transparent;
     border: 2px solid #0f0;
     color: #0f0;
@@ -165,18 +176,27 @@ footer {
     box-shadow: 0 0 10px #0f0;
 }
 
-.collectibles {
+.collectibles-container {
     position: absolute;
     bottom: 0;
-    right: 20px;
-    width: 200px;
-    height: 120px;
+    right: 0;
+    width: 25vmin;
+    height: 18vmin;
+    min-width: 150px;
+    min-height: 100px;
+}
+
+.collectibles {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .card {
     position: absolute;
-    width: 90px;
-    height: 120px;
+    width: 45%;
+    height: auto;
+    aspect-ratio: 3 / 4;
     border: 2px solid #0f0;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
     transition: transform 0.3s ease;
@@ -189,24 +209,23 @@ footer {
 
 .card1 {
     transform: rotate(-15deg);
-    left: 20px;
+    left: 10%;
     bottom: 0;
     --rotation: -15deg;
 }
 
 .card2 {
     transform: rotate(5deg);
-    left: 70px;
-    bottom: 5px;
+    left: 35%;
+    bottom: 5%;
     z-index: 2;
      --rotation: 5deg;
 }
 
 .card3 {
     transform: rotate(20deg);
-    left: 120px;
-    bottom: 0px;
+    left: 60%;
+    bottom: 0;
     z-index: 1;
      --rotation: 20deg;
 }
-
