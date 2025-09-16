@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let audioUnlocked = false;
     let backgroundAudioElement;
+    let fogInstance;
 
     const knockSoundUrls = ['knock.mp3', 'knock_2.mp3', 'knock_3.mp3', 'knock_4.mp3'];
     let knockBuffers = [];
@@ -208,8 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initOverlayFlow() {
         const overlay = document.getElementById('ui-overlay');
-        const fogCanvas = document.getElementById('fog-canvas');
-        const fog = new FogFX('#fog-canvas'); fog.start();
         const prompt = document.getElementById('overlay-prompt');
         const yesBtn = document.getElementById('overlay-yes');
         const overlayInner = overlay.querySelector('.overlay-inner');
@@ -365,6 +364,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function main() {
         const loadingOverlay = document.getElementById('loading-overlay');
+
+        // Start fog immediately so it's ready when the loading overlay fades
+        fogInstance = new FogFX('#fog-canvas');
+        fogInstance.start();
 
         // Initial layout adjustments
         adjustLayout();
