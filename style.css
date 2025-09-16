@@ -272,8 +272,8 @@ footer {
     isolation: isolate; /* Create a new stacking context */
 }
 
-.menu button.hover-active:not(:disabled),
-.menu button:hover:not(:disabled) {
+.menu button:hover:not(:disabled),
+.menu button.button-active:not(:disabled) {
     background-color: #ccc;
     color: #000;
     box-shadow: 0 0 10px #ccc;

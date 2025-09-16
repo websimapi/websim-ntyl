@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (button.disabled) return;
             stopAllSounds();
             button.classList.add('static-bg-active');
-            button.classList.add('hover-active'); // Manually add hover style class
+            button.classList.add('button-active');
             const hoverSound = playSound(uiHoverBuffer, 0.2);
             if(hoverSound) initialSoundSource = hoverSound.source;
             staticLoopSound = playSound(tvStaticLoopBuffer, 0.1, null, true, 0.5); // 0.5s fade-in
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const handleHoverEnd = (button) => {
             stopAllSounds();
             button.classList.remove('static-bg-active');
-            button.classList.remove('hover-active'); // Manually remove hover style class
+            button.classList.remove('button-active');
         };
 
         buttons.forEach(button => {
