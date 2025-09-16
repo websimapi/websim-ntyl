@@ -20,15 +20,15 @@ float hash(vec2 p) {
 
 void main() {
     vec2 uv = vUv;
-    float meltBoundary = 0.5; // The y-coordinate where the melting starts
+    float meltBoundary = 0.15; // Start melting from the bottom 15%
 
     if (uv.y < meltBoundary) {
         float totalDisplacement = 0.0;
         
         // More layers for more detail
-        for(float i = 1.0; i <= 5.0; i += 1.0) {
-            float dripFrequency = 10.0 + i * 5.0;
-            float dripSpeed = 0.05 + i * 0.02;
+        for(float i = 1.0; i <= 7.0; i += 1.0) {
+            float dripFrequency = 8.0 + i * 4.0;
+            float dripSpeed = 0.08 + i * 0.03;
             float dripSeed = i * 23.7;
 
             // Get a unique value for this column
@@ -37,19 +37,18 @@ void main() {
             
             // Animate drip position over time. Drips now start at the boundary and move down.
             float dripTime = uTime * dripSpeed + randVal * 100.0;
-            // The tip of the drip moves from meltBoundary downwards to -0.3 (off-screen)
-            float dripY = meltBoundary - fract(dripTime) * (meltBoundary + 0.3); 
+            // The tip of the drip moves from meltBoundary downwards to -0.5 (well off-screen)
+            float dripY = meltBoundary - fract(dripTime) * (meltBoundary + 0.5); 
             
             // Vary drip length for more organic look
-            float dripLength = mix(0.1, 0.4, hash(vec2(columnX, dripSeed * 2.0)));
+            float dripLength = mix(0.1, 0.5, hash(vec2(columnX, dripSeed * 2.0)));
             
             // Calculate drip profile (strength)
             float dripProfile = 0.0;
-            // A pixel is part of a drip if it's below the melt boundary but above the drip's tip
             if (uv.y < meltBoundary && uv.y > dripY) {
                  // Use a smooth curve for the drip shape
                  float progress = (meltBoundary - uv.y) / (meltBoundary - dripY + 0.001); // Avoid division by zero
-                 dripProfile = sin(progress * 3.14159 * 0.5); // Use quarter of a sine wave for a tapering effect
+                 dripProfile = pow(sin(progress * 3.14159 * 0.5), 2.0); // Tapering effect, sharper tip
             }
 
             // Add to total displacement, modulated by the drip's profile
@@ -60,16 +59,15 @@ void main() {
         uv.y += totalDisplacement;
         
         // Add some horizontal wobble for a more liquid feel
-        float wobble = sin((vUv.y + totalDisplacement) * 50.0 + uTime * 2.0) * 0.005 * totalDisplacement * 25.0;
+        float wobbleStrength = totalDisplacement * 20.0;
+        float wobble = sin((vUv.y + totalDisplacement) * 40.0 + uTime * 3.0) * 0.008 * wobbleStrength;
         uv.x += wobble;
     }
     
-    // Sample the texture. If the calculated uv is outside the [0,1] range, it will clamp to the edge,
-    // which effectively stretches the edge pixels downwards, as intended.
     vec4 color = texture2D(uTexture, uv);
 
     // Fade out the very bottom to blend into nothing
-    float fadeStart = 0.05;
+    float fadeStart = 0.03;
     if (vUv.y < fadeStart) {
         color.a *= smoothstep(0.0, fadeStart, vUv.y);
     }
@@ -89,8 +87,16 @@ function initMeltingFigure() {
     if (!canvas) return;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 10);
+    
+    // Adjust camera to account for taller canvas
+    const container = document.getElementById('figure-container');
+    const aspect = container.clientWidth / (container.clientHeight * 1.3); // Match canvas aspect ratio
+    const frustumSize = 1.0;
+    const camera = new THREE.OrthographicCamera(frustumSize * aspect / -2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / -2, 0.1, 10);
     camera.position.z = 1;
+
+    // Adjust plane geometry to match camera view
+    const geometry = new THREE.PlaneGeometry(frustumSize * aspect, frustumSize);
 
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -111,7 +117,6 @@ function initMeltingFigure() {
                 transparent: true,
             });
 
-            const geometry = new THREE.PlaneGeometry(1, 1);
             const plane = new THREE.Mesh(geometry, material);
             scene.add(plane);
 
@@ -124,10 +129,23 @@ function initMeltingFigure() {
                 const canvas = renderer.domElement;
                 const container = canvas.parentElement;
                 if(container){
-                    const width = container.clientWidth;
-                    const height = container.clientHeight;
+                    // Canvas element has its own size, use that for renderer
+                    const width = canvas.clientWidth;
+                    const height = canvas.clientHeight;
                     if (canvas.width !== width || canvas.height !== height) {
                       renderer.setSize(width, height, false);
+                      
+                      // Update camera on resize
+                      const aspect = width / height;
+                      camera.left = frustumSize * aspect / -2;
+                      camera.right = frustumSize * aspect / 2;
+                      camera.top = frustumSize / 2;
+                      camera.bottom = frustumSize / -2;
+                      camera.updateProjectionMatrix();
+
+                      // Update plane geometry to match new aspect ratio
+                      plane.geometry.dispose();
+                      plane.geometry = new THREE.PlaneGeometry(frustumSize * aspect, frustumSize);
                     }
                 }
                 
@@ -142,11 +160,20 @@ function initMeltingFigure() {
     );
      
     function onResize() {
+        const canvas = renderer.domElement;
         const container = canvas.parentElement;
         if(container){
-             const width = container.clientWidth;
-             const height = container.clientHeight;
-             renderer.setSize(width, height);
+             const width = canvas.clientWidth;
+             const height = canvas.clientHeight;
+             renderer.setSize(width, height, false);
+
+             const aspect = width / height;
+             camera.left = frustumSize * aspect / -2;
+             camera.right = frustumSize * aspect / 2;
+             camera.updateProjectionMatrix();
+
+             scene.children[0].geometry.dispose();
+             scene.children[0].geometry = new THREE.PlaneGeometry(frustumSize * aspect, frustumSize);
         }
     }
     window.addEventListener('resize', onResize);

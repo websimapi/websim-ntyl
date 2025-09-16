@@ -124,7 +124,7 @@ h1 {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end; /* Align container to the bottom */
     width: 100%;
     min-height: 0;
 }
@@ -136,6 +136,7 @@ h1 {
     aspect-ratio: 1 / 1;
     position: relative;
     margin: 0 auto;
+    margin-bottom: -15%; /* Pull up to hide extended part in layout */
 }
 
 .figure-container img {
@@ -154,7 +155,7 @@ h1 {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 130%; /* Make canvas taller to allow drips to render below */
     object-fit: contain;
 }
 
