@@ -113,9 +113,11 @@ h1 {
 
 .center-panel {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     height: 100%;
+    gap: 2vmin;
 }
 
 .vignette {
@@ -149,20 +151,32 @@ h1 {
     object-fit: cover;
 }
 
+.center-bottom-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+    width: 100%;
+    gap: 1rem;
+    position: relative;
+    flex-wrap: wrap;
+}
+
 footer {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     padding-top: 1vmin;
-    position: relative;
     flex-shrink: 0;
-    height: auto;
+    height: 0; /* Footer is now empty */
+    min-height: 0;
+    padding: 0;
 }
 
 .menu {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    flex-shrink: 0; /* Prevent menu from shrinking when space is tight */
 }
 
 .menu button {
@@ -183,13 +197,14 @@ footer {
 }
 
 .collectibles-container {
-    position: absolute;
-    bottom: 0;
-    right: 0;
+    position: relative;
     width: 25vmin;
     height: 18vmin;
     min-width: 150px;
     min-height: 100px;
+    flex-grow: 1; /* Allow container to take remaining space */
+    display: flex;
+    justify-content: flex-end;
 }
 
 .collectibles {
