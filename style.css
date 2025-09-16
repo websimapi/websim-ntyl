@@ -272,11 +272,20 @@ footer {
     isolation: isolate; /* Create a new stacking context */
 }
 
-.menu button:hover:not(:disabled),
+/* Base active state for all devices (touch included) */
 .menu button.button-active:not(:disabled) {
     background-color: #ccc;
     color: #000;
     box-shadow: 0 0 10px #ccc;
+}
+
+/* Hover-specific styles for devices that support it */
+@media (hover: hover) {
+    .menu button:hover:not(:disabled) {
+        background-color: #ccc;
+        color: #000;
+        box-shadow: 0 0 10px #ccc;
+    }
 }
 
 .menu button:disabled {

@@ -363,6 +363,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function initCollectionToggle() {
+        const collectionButton = document.getElementById('collection-button');
+        const collectiblesContainer = document.getElementById('collectibles-container');
+        if (collectionButton && collectiblesContainer) {
+            const toggleCollection = () => {
+                const isVisible = collectiblesContainer.style.opacity === '1';
+                if (isVisible) {
+                    collectiblesContainer.style.opacity = '0';
+                    collectiblesContainer.style.pointerEvents = 'none';
+                    collectionButton.classList.remove('button-active');
+                } else {
+                    collectiblesContainer.style.opacity = '1';
+                    collectiblesContainer.style.pointerEvents = 'auto';
+                    collectionButton.classList.add('button-active');
+                }
+            };
+
+            collectionButton.addEventListener('click', toggleCollection);
+
+            // Hide initially on mobile portrait
+            if (window.matchMedia("(max-width: 768px) and (orientation: portrait)").matches) {
+                collectiblesContainer.style.opacity = '0';
+                collectiblesContainer.style.pointerEvents = 'none';
+                collectionButton.classList.remove('button-active');
+            } else {
+                 collectiblesContainer.style.opacity = '1';
+                 collectiblesContainer.style.pointerEvents = 'auto';
+            }
+        }
+    }
+
     async function main() {
         const loadingOverlay = document.getElementById('loading-overlay');
 
@@ -372,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initSideCarousels();
         startCarousels();
         initButtonHovers();
+        initCollectionToggle();
 
         // Adjust on window resize
         window.addEventListener('resize', () => {
