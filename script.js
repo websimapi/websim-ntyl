@@ -1,30 +1,32 @@
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Script loaded and running.");
 
-```
-function adjustLayout() {
-    const sidePanels = document.querySelectorAll('.side-panel');
-    if (!sidePanels.length) return;
+    function adjustLayout() {
+        const sidePanels = document.querySelectorAll('.side-panel');
+        if (sidePanels.length === 0) return;
 
-    const content = document.querySelector('.content');
-    const contentHeight = content.clientHeight;
+        const content = document.querySelector('.content');
+        if (!content) return;
+        
+        const contentHeight = content.clientHeight;
+        const panelWidth = content.clientWidth / 4;
 
-    // Calculate available width for a side panel
-    // It's 1fr in a 1fr 2fr 1fr grid, so roughly 1/4 of the content width
-    const panelWidth = content.clientWidth / 4;
+        const gap = parseFloat(getComputedStyle(sidePanels[0]).gap) || 0;
+        const boxHeight = (contentHeight - (4 * gap)) / 5;
+        const requiredWidth = boxHeight * (16 / 9);
 
-    // Calculate required width for a feature box to maintain 16:9 aspect ratio
-    // 5 boxes, 4 gaps
-    const gap = parseFloat(getComputedStyle(sidePanels[0]).gap) || 0;
-    const boxHeight = (contentHeight - 4 * gap) / 5;
-    const requiredWidth = boxHeight * (16 / 9);
+        sidePanels.forEach(panel => {
+            if (requiredWidth > panelWidth) {
+                panel.classList.add('vertical-aspect');
+            } else {
+                panel.classList.remove('vertical-aspect');
+            }
+        });
+    }
 
-    sidePanels.forEach(panel => {
-        if (requiredWidth > panelWidth) {
-            panel.classList.add('vertical-aspect');
-        } else {
-            panel.classList.remove('vertical-aspect');
-        }
-    });
-}
+    // Initial adjustment
+    adjustLayout();
 
-window.addEventListener('resize', adjustLayout);
-document.addEventListener('DOMContentLoaded', adjustLayout);
+    // Adjust on window resize
+    window.addEventListener('resize', adjustLayout);
+});
