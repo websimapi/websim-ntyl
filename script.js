@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const buttons = document.querySelectorAll('.menu button, .overlay-btn, .credits-btn');
         let staticLoopSound = null;
         let initialSoundSource = null;
-        let touchInProgress = false;
+        let touchInteractionEndTimer = null;
 
         const stopAllSounds = () => {
             if (initialSoundSource) {
@@ -331,35 +331,33 @@ document.addEventListener('DOMContentLoaded', () => {
         buttons.forEach(button => {
             // Mouse events
             button.addEventListener('mouseenter', (e) => {
-                if (touchInProgress) return; // Don't fire if a touch is happening
+                if (touchInteractionEndTimer) return; // Don't fire if a touch just happened
                 handleHoverStart(e.currentTarget);
             });
             button.addEventListener('mouseleave', (e) => {
-                if (touchInProgress) return;
+                if (touchInteractionEndTimer) return;
                 handleHoverEnd(e.currentTarget);
             });
 
             // Touch events
             button.addEventListener('touchstart', (e) => {
-                touchInProgress = true;
+                clearTimeout(touchInteractionEndTimer);
+                touchInteractionEndTimer = null;
                 handleHoverStart(e.currentTarget);
             }, { passive: true });
 
-            button.addEventListener('touchend', (e) => {
+            const handleTouchEnd = (e) => {
                 handleHoverEnd(e.currentTarget);
-                // After a short delay, reset the flag to allow mouse events again.
+                // After a short delay, re-enable mouse events.
                 // This prevents mouseenter from firing immediately after touchend on some devices.
-                setTimeout(() => {
-                    touchInProgress = false;
-                }, 100);
-            });
+                clearTimeout(touchInteractionEndTimer);
+                touchInteractionEndTimer = setTimeout(() => {
+                    touchInteractionEndTimer = null;
+                }, 300);
+            };
 
-             button.addEventListener('touchcancel', (e) => {
-                handleHoverEnd(e.currentTarget);
-                setTimeout(() => {
-                    touchInProgress = false;
-                }, 100);
-            });
+            button.addEventListener('touchend', handleTouchEnd);
+            button.addEventListener('touchcancel', handleTouchEnd);
         });
     }
 
