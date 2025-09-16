@@ -153,12 +153,13 @@ h1 {
 
 .center-bottom-container {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: flex-end;
     width: 100%;
-    gap: 1rem;
+    gap: 2vmin;
     position: relative;
     flex-wrap: wrap;
+    padding-bottom: 2vmin; /* Add padding to prevent clipping */
 }
 
 footer {
@@ -181,8 +182,8 @@ footer {
 
 .menu button {
     font-family: 'Roboto', sans-serif;
-    font-size: clamp(0.6rem, 1.2vmin, 0.7rem);
-    padding: 0.3em 0.8em;
+    font-size: clamp(0.8rem, 2vmin, 1rem);
+    padding: 0.5em 1.2em;
     background-color: transparent;
     border: 2px solid #0f0;
     color: #0f0;
@@ -198,24 +199,18 @@ footer {
 
 .collectibles-container {
     position: relative;
-    width: 15vmin;
-    height: 11vmin;
-    min-width: 80px;
-    min-height: 60px;
-    flex-grow: 1; /* Allow container to take remaining space */
+    width: 12vmin;
+    height: 9vmin;
+    min-width: 60px;
+    min-height: 45px;
+    flex-shrink: 0; /* Prevent container from shrinking */
     display: flex;
     justify-content: flex-end;
 }
 
-.collectibles {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
 .card {
     position: absolute;
-    width: 45%;
+    width: 60%;
     height: auto;
     aspect-ratio: 3 / 4;
     border: 2px solid #0f0;
@@ -230,23 +225,24 @@ footer {
 
 .card1 {
     transform: rotate(-15deg);
-    left: 10%;
+    left: 0%;
     bottom: 0;
     --rotation: -15deg;
+    z-index: 3;
 }
 
 .card2 {
     transform: rotate(5deg);
-    left: 35%;
+    left: 25%;
     bottom: 5%;
-    z-index: 2;
+    z-index: 4;
      --rotation: 5deg;
 }
 
 .card3 {
     transform: rotate(20deg);
-    left: 60%;
+    left: 50%;
     bottom: 0;
-    z-index: 1;
+    z-index: 3;
      --rotation: 20deg;
 }
