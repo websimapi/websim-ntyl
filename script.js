@@ -292,6 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const buttons = document.querySelectorAll('.menu button, .overlay-btn, .credits-btn');
         let staticLoopSound = null;
         let initialSoundSource = null;
+        let touchInProgress = false;
 
         const stopAllSounds = () => {
             if (initialSoundSource) {
@@ -311,23 +312,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        const handleHoverStart = (button) => {
+            if (button.disabled) return;
+            stopAllSounds();
+            button.classList.add('static-bg-active');
+            const hoverSound = playSound(uiHoverBuffer, 0.2);
+            if(hoverSound) initialSoundSource = hoverSound.source;
+            staticLoopSound = playSound(tvStaticLoopBuffer, 0.1, null, true, 0.5); // 0.5s fade-in
+        };
+
+        const handleHoverEnd = (button) => {
+            stopAllSounds();
+            button.classList.remove('static-bg-active');
+        };
+
         buttons.forEach(button => {
-            button.addEventListener('mouseenter', () => {
-                if (button.disabled) return;
-                
-                stopAllSounds();
-
-                button.classList.add('static-bg-active');
-                
-                const hoverSound = playSound(uiHoverBuffer, 0.2);
-                if(hoverSound) initialSoundSource = hoverSound.source;
-
-                staticLoopSound = playSound(tvStaticLoopBuffer, 0.1, null, true, 0.5); // 0.5s fade-in
+            // Mouse events
+            button.addEventListener('mouseenter', (e) => {
+                if (touchInProgress) return; // Don't fire if a touch is happening
+                handleHoverStart(e.currentTarget);
+            });
+            button.addEventListener('mouseleave', (e) => {
+                if (touchInProgress) return;
+                handleHoverEnd(e.currentTarget);
             });
 
-            button.addEventListener('mouseleave', () => {
-                stopAllSounds();
-                button.classList.remove('static-bg-active');
+            // Touch events
+            button.addEventListener('touchstart', (e) => {
+                touchInProgress = true;
+                handleHoverStart(e.currentTarget);
+            }, { passive: true });
+
+            button.addEventListener('touchend', (e) => {
+                handleHoverEnd(e.currentTarget);
+                // After a short delay, reset the flag to allow mouse events again.
+                // This prevents mouseenter from firing immediately after touchend on some devices.
+                setTimeout(() => {
+                    touchInProgress = false;
+                }, 100);
+            });
+
+             button.addEventListener('touchcancel', (e) => {
+                handleHoverEnd(e.currentTarget);
+                setTimeout(() => {
+                    touchInProgress = false;
+                }, 100);
             });
         });
     }
