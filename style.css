@@ -40,21 +40,6 @@ body {
     pointer-events: none; z-index: 0;
 }
 
-.drip-horizon {
-    position: fixed; left: 0; right: 0; top: 0;
-    height: 14px; z-index: 150; pointer-events: none;
-    background: linear-gradient(to bottom, rgba(230,230,230,0.28) 0, rgba(210,210,210,0.16) 2px, rgba(200,200,200,0.08) 8px, transparent 100%);
-    filter: url(#drip-displace) blur(0.2px);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset;
-}
-.drip-horizon::before {
-    content: ""; position: absolute; inset: 0 0 auto 0; height: 10px;
-    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 8px);
-    opacity: 0.5; filter: blur(0.4px);
-    animation: scum 12s linear infinite; mix-blend-mode: screen;
-}
-@keyframes scum { from { background-position-x: 0; } to { background-position-x: 200px; } }
-
 #app {
     width: 100vw;
     height: 100vh;
@@ -81,21 +66,24 @@ h1 {
 }
 
 .credits-btn {
-    position: absolute;
-    top: 1vmin;
-    right: 2vmin;
-    padding: 0.5em 1em;
-    background-color: rgba(204, 204, 204, 0.1);
-    border: 1px solid #ccc;
-    color: #ccc;
-    text-decoration: none;
-    font-size: clamp(0.7rem, 2vmin, 0.9rem);
-    transition: background-color 0.3s, color 0.3s;
+    position: absolute; top: 0.75vmin; right: 1vmin;
+    width: 34px; height: 34px; display: grid; place-items: center;
+    background: rgba(204,204,204,0.08); border: 1px solid #ccc; color: #ccc;
+    border-radius: 50%; font-size: 0.95rem; line-height: 1; text-decoration: none; z-index: 150;
 }
 
 .credits-btn:hover {
     background-color: #ccc;
     color: #000;
+}
+
+.credits-btn:hover::after { opacity: 1; transform: translateY(0); }
+
+.credits-btn::after {
+    content: attr(data-tooltip); position: absolute; top: 100%; right: 0;
+    background: rgba(0,0,0,0.9); border: 1px solid #ccc; color: #ccc;
+    padding: 0.4rem 0.6rem; font-size: 0.8rem; white-space: pre-line;
+    transform: translateY(6px); opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
 }
 
 .content {
@@ -113,21 +101,37 @@ h1 {
     flex-direction: column;
     gap: 1.5vmin;
     height: 100%;
-    justify-content: space-around;
-    overflow: hidden; /* Added to prevent child overflow from breaking layout */
+    justify-content: flex-start;
+    overflow: hidden; /* hide overflow to show only 5 at a time */
+    padding-block: 1vmin;
+}
+
+.side-panel::-webkit-scrollbar {
+    width: 6px; height: 6px;
+}
+.side-panel::-webkit-scrollbar-thumb {
+    background: #333;
+}
+
+.panel-track {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vmin;
+    height: 100%;
+    will-change: transform;
 }
 
 .side-panel.vertical-aspect .feature-box {
-    aspect-ratio: 9 / 16;
+    aspect-ratio: auto;
 }
 
 .feature-box {
     border: 2px solid #666;
     background-color: #000;
     overflow: hidden;
-    aspect-ratio: 16 / 9;
-    flex-grow: 1; /* Allow boxes to grow and shrink */
-    min-height: 0; /* Important for flex-shrink to work correctly */
+    aspect-ratio: auto;
+    height: calc((100% - (1.5vmin * 4)) / 5); /* exactly 5 visible rows */
+    flex: 0 0 auto;
     transition: aspect-ratio 0.3s ease;
 }
 
@@ -282,4 +286,52 @@ footer {
     bottom: 0;
     z-index: 3;
      --rotation: 20deg;
+}
+
+.audio-unlock {
+  position: fixed; right: 1rem; bottom: 1rem;
+  padding: 0.5rem 0.75rem; background: rgba(0,0,0,0.6);
+  border: 1px solid #ccc; color: #ccc; z-index: 200; cursor: pointer;
+}
+
+.ui-overlay {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    display: grid;
+    place-items: center;
+    z-index: 300;
+    transition: opacity 0.6s ease;
+    opacity: 1;
+}
+
+.ui-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.overlay-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.type-line {
+    font-family: 'Roboto', sans-serif;
+    font-size: clamp(1rem, 3vmin, 1.6rem);
+    color: #ccc;
+}
+
+.overlay-btn {
+    padding: 0.5em 1.2em;
+    background: transparent;
+    border: 2px solid #ccc;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.overlay-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
