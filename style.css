@@ -51,7 +51,6 @@ body {
 }
 
 header {
-    grid-column: 1 / -1; /* Span all three columns */
     text-align: center;
     position: relative;
     padding-bottom: 1vmin;
@@ -94,9 +93,8 @@ h1 .bounce-comma { display:inline-block; animation: commaBounce 2.6s ease-in-out
     flex-grow: 1;
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
-    grid-template-rows: auto 1fr; /* Row for header, row for panels */
     align-items: center;
-    gap: 1vmin 2vmin; /* row-gap column-gap */
+    gap: 2vmin;
     padding: 1vmin 0;
     overflow: hidden;
 }
@@ -235,12 +233,18 @@ footer {
     color: #ccc;
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
-.menu button:hover {
+.menu button:hover:not(:disabled) {
     background-color: #ccc;
     color: #000;
     box-shadow: 0 0 10px #ccc;
+}
+
+.menu button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .collectibles-container {
