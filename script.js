@@ -197,7 +197,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // wrap NOT and handle initial red fade to white
             rest.innerHTML = rest.textContent.replace('NOT','<span class="not-word">NOT</span>');
             const notEl = rest.querySelector('.not-word');
-            requestAnimationFrame(()=>{ notEl.style.color = '#ddd'; }); // fade to white via CSS transition
+            notEl.classList.add('appear');
+            setTimeout(()=>{ notEl.style.color = '#ddd'; }, 500);
             pulseNotRandomly(notEl);
             await typing;
             overlay.classList.add('fade-out');
