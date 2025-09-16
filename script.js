@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const r = fig.getBoundingClientRect();
         const startY = Math.round(r.top + r.height * 0.85);
         bg.style.clipPath = `inset(${startY}px 0 0 0)`;
+        const horizon = document.querySelector('.drip-horizon');
+        if (horizon) horizon.style.top = `${startY}px`;
     }
 
     // Initial adjustment
