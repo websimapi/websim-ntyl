@@ -13,55 +13,65 @@ uniform sampler2D uTexture;
 uniform float uTime;
 varying vec2 vUv;
 
-// 2D Random function
-float random(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+// A pseudo-random function
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
 
 void main() {
     vec2 uv = vUv;
-    float meltBoundary = 0.45; // Start melting higher up
+    float meltBoundary = 0.5; // Start melting a bit higher
 
-    // Main dripping effect
     if (uv.y < meltBoundary) {
-        float dripAmount = 0.0;
+        float totalDisplacement = 0.0;
         
-        // Multiple layers of drips for variation
-        for(float i = 1.0; i <= 3.0; i += 1.0) {
-            float dripFrequency = 5.0 * i;
-            float dripSpeed = 0.1 * (4.0 - i);
-            float dripSeed = i * 10.0;
+        // More layers for more detail
+        for(float i = 1.0; i <= 5.0; i += 1.0) {
+            float dripFrequency = 10.0 + i * 5.0; // Creates more columns of drips
+            float dripSpeed = 0.05 + i * 0.02; // Varying speeds for each layer
+            float dripSeed = i * 23.7;
 
-            // Generate a drip pattern using a random function
-            float dripPattern = random(vec2(floor(uv.x * dripFrequency), dripSeed));
+            // Get a unique value for this column
+            float columnX = floor(uv.x * dripFrequency);
+            float randVal = hash(vec2(columnX, dripSeed));
             
-            // Animate the pattern
-            float dripTime = uTime * dripSpeed + dripPattern * 100.0;
-            float dripY = fract(dripTime) * (meltBoundary + 0.1) - 0.1; // Make drips start off-screen
+            // Animate drip position over time
+            float dripTime = uTime * dripSpeed + randVal * 100.0;
+            float dripY = fract(dripTime) * (meltBoundary + 0.3) - 0.3; // Drips can start further above the visible area and travel further
             
-            // Check if current UV is within a drip's path
-            if (uv.y < dripY && uv.y > dripY - 0.1) { // 0.1 is the drip length
-                 // Stretch the UVs from the top of the drip
-                float stretchFactor = (dripY - uv.y) / 0.1;
-                dripAmount = max(dripAmount, stretchFactor);
+            // Vary drip length for more organic look
+            float dripLength = mix(0.1, 0.4, hash(vec2(columnX, dripSeed * 2.0))); // Much longer drips
+            
+            // Calculate drip profile (strength)
+            float dripProfile = 0.0;
+            if (uv.y < dripY && uv.y > dripY - dripLength) {
+                 // Use a smooth curve for the drip shape instead of a linear stretch
+                 float progress = (dripY - uv.y) / dripLength;
+                 dripProfile = sin(progress * 3.14159); // A smooth curve from 0 to 1 to 0
             }
+
+            // Add to total displacement, modulated by the drip's profile
+            totalDisplacement += dripProfile * (dripLength * 0.4); // The amount of downward UV shift
         }
         
-        if (dripAmount > 0.0) {
-            uv.y = mix(uv.y, meltBoundary, dripAmount);
-        }
+        // Apply the accumulated downward displacement
+        uv.y -= totalDisplacement;
+        
+        // Add some horizontal wobble for a more liquid feel
+        float wobble = sin((vUv.y - totalDisplacement) * 50.0 + uTime * 2.0) * 0.005 * totalDisplacement * 25.0;
+        uv.x += wobble;
     }
     
     vec4 color = texture2D(uTexture, uv);
 
-    // Fade out the very bottom
-    float fadeStart = 0.1;
+    // Fade out the very bottom to blend into nothing
+    float fadeStart = 0.05;
     if (vUv.y < fadeStart) {
         color.a *= smoothstep(0.0, fadeStart, vUv.y);
     }
 
-    // Discard transparent pixels from original texture
-    if (color.a < 0.1) {
+    // Discard transparent pixels from the original texture to maintain the figure's shape
+    if (texture2D(uTexture, vUv).a < 0.1) {
         discard;
     }
 
