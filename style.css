@@ -347,10 +347,17 @@ h1 .bounce-comma.slow { animation-duration: 4s; animation-iteration-count: 1; an
 
 h1 .not-word { color:#f33; transition: color 1.5s ease; font-weight: 900; }
 
-h1 .not-word.appear { animation: notPop 0.45s ease-out; }
+h1 .not-word.appear { animation: notPop 0.7s ease-out; }
 
 @keyframes notPop { 0%{ transform: scale(0.92); text-shadow: 0 0 10px rgba(243,51,51,0.7) } 60%{ transform: scale(1.12) } 100%{ transform: scale(1); text-shadow: none } }
 
-h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
+h1 .not-word.pulse-red { animation: notPulse 2.4s ease; }
 
-@keyframes notPulse { 0%{ color:#f33 } 70%{ color:#ddd } 100%{ color:#ddd } }
+@keyframes notPulse {
+  0%{ color:#f33; text-shadow:0 0 14px rgba(243,51,51,0.8) }
+  20%{ color:#fff; text-shadow:none }
+  40%{ color:#f33; text-shadow:0 0 18px rgba(243,51,51,0.9) }
+  60%{ color:#ddd; text-shadow:none }
+  80%{ color:#f33; text-shadow:0 0 12px rgba(243,51,51,0.7) }
+  100%{ color:#ddd; text-shadow:none }
+}

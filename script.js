@@ -188,20 +188,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const prefix = document.createElement('span');
             const rest = document.createElement('span');
             title.append(prefix, rest);
-            await typeText(prefix, "NO,", 180);
+            await typeText(prefix, "NO,", 140);
             const commaEl = wrapComma(prefix);
-            await sleep(900);
+            await sleep(500);
             if (commaEl){ commaEl.classList.add('slow'); }
-            const typing = typeTextAppend(rest, " I'M NOT A HUMAN", 90);
-            await waitForNot(rest);
-            // wrap NOT and handle initial red fade to white
+            await typeTextAppend(rest, " I'M ", 90);
+            await sleep(200);
+            await typeTextAppend(rest, "NOT", 120);
             rest.innerHTML = rest.textContent.replace('NOT','<span class="not-word">NOT</span>');
             const notEl = rest.querySelector('.not-word');
             notEl.classList.add('appear');
-            setTimeout(()=>{ notEl.style.color = '#ddd'; }, 500);
+            setTimeout(()=>{ notEl.style.color = '#ddd'; }, 1600);
             pulseNotRandomly(notEl);
-            await typing;
-            overlay.classList.add('fade-out');
+            await sleep(250);
+            await typeTextAppend(rest, " A HUMAN", 90);
         }, { once: true });
     }
 
