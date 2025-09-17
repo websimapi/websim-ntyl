@@ -26,6 +26,7 @@ export function applyPosterizeToImage(canvas, image, levels = 5.0, edgeMix = 0.1
   uniform float uLevels;
   uniform float uEdgeMix;
   uniform float uTime;
+  uniform float uFogCoverage; // new uniform: 0.45 (sky only) to 1.5 (full screen)
   varying vec2 vUV;
 
   float luma(vec3 c){ return dot(c, vec3(0.299, 0.587, 0.114)); }
@@ -57,7 +58,7 @@ export function applyPosterizeToImage(canvas, image, levels = 5.0, edgeMix = 0.1
   }
 
   void main(){
-    float skyMask = smoothstep(0.45, 0.0, vUV.y); // 1 at top, 0 by ~45% down
+    float skyMask = smoothstep(uFogCoverage, uFogCoverage - 0.5, vUV.y); // 1 at top, 0 at uFogCoverage
 
     // Lava lamp displacement
     vec2 motion = vec2(fbm(vUV * 2.5 + uTime * 0.08), fbm(vUV * 2.5 - uTime * 0.08));
@@ -133,6 +134,7 @@ export function applyPosterizeToImage(canvas, image, levels = 5.0, edgeMix = 0.1
   const uLevels = gl.getUniformLocation(prog, 'uLevels');
   const uEdgeMix = gl.getUniformLocation(prog, 'uEdgeMix');
   const uTime = gl.getUniformLocation(prog, 'uTime');
+  const uFogCoverage = gl.getUniformLocation(prog, 'uFogCoverage'); // Get location for new uniform
   const startTime = performance.now();
 
   function draw() {
@@ -143,6 +145,7 @@ export function applyPosterizeToImage(canvas, image, levels = 5.0, edgeMix = 0.1
     gl.uniform1f(uLevels, levels);
     gl.uniform1f(uEdgeMix, edgeMix);
     gl.uniform1f(uTime, time);
+    // uFogCoverage is set by the public method
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
@@ -155,11 +158,18 @@ export function applyPosterizeToImage(canvas, image, levels = 5.0, edgeMix = 0.1
   animate();
   window.addEventListener('resize', resize, { passive: true });
 
-  // Return a cleanup function
-  return () => {
-      if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-      }
-      // Consider cleaning up other resources if this component can be destroyed
+  // Return an object with cleanup and a method to update the uniform
+  return {
+    cleanup: () => {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        window.removeEventListener('resize', resize);
+        // Consider cleaning up other resources if this component can be destroyed
+    },
+    setFogCoverage: (value) => {
+        gl.useProgram(prog);
+        gl.uniform1f(uFogCoverage, value);
+    }
   };
 }
