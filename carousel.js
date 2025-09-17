@@ -29,4 +29,3 @@ export function startCarousels(){
   setTimeout(()=>{ panels.forEach(p => cyclePanel(p)); }, 600);
   setInterval(()=>{ panels.forEach(p => cyclePanel(p)); }, 3000);
 }
-

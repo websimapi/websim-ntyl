@@ -15,4 +15,3 @@ export function pulseNotRandomly(notEl){
 export function waitForNot(el){
   return new Promise(res=>{ const id=setInterval(()=>{ if(el.textContent.includes('NOT')){ clearInterval(id); res(); } },50); });
 }
-

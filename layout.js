@@ -14,4 +14,3 @@ export function updateBackgroundDrip() {
   const r = fig.getBoundingClientRect(); const startY = Math.round(r.top + r.height * 0.85);
   bg.style.clipPath = `inset(${startY}px 0 0 0)`;
 }
-

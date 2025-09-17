@@ -9,9 +9,14 @@ export async function startCutscene(){
   let transitionStarted = false;
   let zoomRafId = null;
   let birdsStopped = false;
+  let autoSkipTimeout = null;
 
   const handleSkip = () => {
       if (transitionStarted) return;
+      if (autoSkipTimeout) {
+        clearTimeout(autoSkipTimeout);
+        autoSkipTimeout = null;
+      }
       if (zoomRafId) {
         cancelAnimationFrame(zoomRafId);
         zoomRafId = null;
@@ -35,6 +40,7 @@ export async function startCutscene(){
       goNext();
     }); 
     cs.addEventListener('click', handleSkip, { once: true });
+    autoSkipTimeout = setTimeout(handleSkip, 14000);
   };
   img.src='cutscene_landscape.png';
   const bg = getBackgroundAudio(); if(bg){ try{ bg.pause(); }catch(e){} }
@@ -46,6 +52,10 @@ export async function startCutscene(){
     if (transitionStarted) return;
     transitionStarted = true;
     cs.removeEventListener('click', handleSkip);
+    if (autoSkipTimeout) {
+        clearTimeout(autoSkipTimeout);
+        autoSkipTimeout = null;
+    }
 
     canvas.classList.remove('reveal', 'fade-in-long');
     

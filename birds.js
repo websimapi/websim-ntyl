@@ -2,7 +2,7 @@ let rafId = null;
 
 export function animateBirds(onComplete){
   const flockContainer = document.getElementById('bird-flock'); if (!flockContainer) return;
-  const flockSize = 4, journeyDuration = 56000, startTime = performance.now() + 4000;
+  const flockSize = 4, journeyDuration = 56000, startTime = performance.now();
   const birds=[]; for(let i=0;i<flockSize;i++){ const el=document.createElement('div'); el.className='bird'; el.style.transform='translate(-100px,-100px)'; flockContainer.appendChild(el); el.style.animationDelay = `${Math.random()*-0.5}s`;
     birds.push({ el, offsetX:(i%2===0?1:-1)*Math.ceil(i/2)*(window.innerWidth*0.025), offsetY:Math.ceil(i/2)*(window.innerHeight*-0.015), wobbleX:Math.random()*20-10, wobbleY:Math.random()*15-7.5, wobbleSpeed:Math.random()*0.5+0.5 });
   }
