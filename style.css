@@ -23,17 +23,17 @@ body {
 }
 
 @keyframes static-move {
-	0% { transform: translateX(0) translateY(0); }
-	10% { transform: translateX(-5px) translateY(5px); }
-	20% { transform: translateX(5px) translateY(-5px); }
-	30% { transform: translateX(-7px) translateY(7px); }
-	40% { transform: translateX(7px) translateY(-7px); }
-	50% { transform: translateX(-5px) translateY(-10px); }
-	60% { transform: translateX(5px) translateY(10px); }
-	70% { transform: translateX(-10px) translateY(5px); }
-	80% { transform: translateX(10px) translateY(-5px); }
-	90% { transform: translateX(-7px) translateY(-7px); }
-	100% { transform: translateX(7px) translateY(7px); }
+    0% { transform: translateX(0) translateY(0); }
+    10% { transform: translateX(-5px) translateY(5px); }
+    20% { transform: translateX(5px) translateY(-5px); }
+    30% { transform: translateX(-7px) translateY(7px); }
+    40% { transform: translateX(7px) translateY(-7px); }
+    50% { transform: translateX(-5px) translateY(-10px); }
+    60% { transform: translateX(5px) translateY(10px); }
+    70% { transform: translateX(-10px) translateY(5px); }
+    80% { transform: translateX(10px) translateY(-5px); }
+    90% { transform: translateX(-7px) translateY(-7px); }
+    100% { transform: translateX(7px) translateY(7px); }
 }
 
 .static-overlay.active {
@@ -144,6 +144,7 @@ h1 .bounce-comma { display:inline-block; animation: commaBounce 2.6s ease-in-out
 .side-panel::-webkit-scrollbar {
     width: 6px; height: 6px;
 }
+
 .side-panel::-webkit-scrollbar-thumb {
     background: #333;
 }
@@ -312,7 +313,7 @@ footer {
 .card1 {
     transform: rotate(-15deg);
     left: 0%;
-    bottom: 0;
+    bottom: 0%;
     --rotation: -15deg;
     z-index: 3;
 }
@@ -322,15 +323,15 @@ footer {
     left: 25%;
     bottom: 5%;
     z-index: 4;
-     --rotation: 5deg;
+    --rotation: 5deg;
 }
 
 .card3 {
     transform: rotate(20deg);
     left: 50%;
-    bottom: 0;
+    bottom: 0%;
     z-index: 3;
-     --rotation: 20deg;
+    --rotation: 20deg;
 }
 
 .fog-overlay { display: none !important; }
@@ -338,6 +339,7 @@ footer {
 .fog-overlay.left {
     left: 0;
 }
+
 .fog-overlay.right {
     right: 0;
 }
@@ -357,6 +359,7 @@ footer {
 }
 
 .fog-overlay::before { animation: fogDriftA 18s ease-in-out infinite alternate; }
+
 .fog-overlay::after  { animation: fogDriftB 26s ease-in-out infinite alternate; opacity: 0.5; }
 
 @keyframes fogDriftA {
@@ -374,6 +377,7 @@ footer {
 .ui-overlay.revealing .fog-overlay.left {
     transform: translateX(-100%);
 }
+
 .ui-overlay.revealing .fog-overlay.right {
     transform: translateX(100%);
 }
@@ -494,8 +498,6 @@ footer {
 
 @keyframes commaBounce { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-6px) } }
 
-h1 .bounce-comma.slow { animation-duration: 4s; animation-iteration-count: 1; animation-timing-function: ease-out; }
-
 h1 .not-word { color:#f33; transition: color 1.5s ease; }
 
 h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
@@ -503,8 +505,14 @@ h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
 @keyframes notPulse { 0%{ color:#f33 } 70%{ color:#ddd } 100%{ color:#ddd } }
 
 #fog-canvas {
-    position: fixed; inset: 0; z-index: 10000; pointer-events: none;
-    opacity: 1; transition: opacity 1.2s ease;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: block; /* Was none */
+    z-index: 10000; /* Under UI overlay, over loading screen */
+    height: 100dvh;
+    overflow: hidden; /* Prevent birds from showing outside the frame */
+    transition: background-color 1.5s ease;
 }
 
 #cutscene {
@@ -528,7 +536,17 @@ h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
     filter: contrast(1.15) saturate(1.05) brightness(0.98);
 }
 
-#cutscene canvas.reveal, #cutscene img.reveal {
+#cutscene canvas {
+    position: absolute; /* Ensure canvas overlays the img for the effect */
+    top: 0;
+    left: 0;
+}
+
+#cutscene img.reveal { /* This rule is no longer needed for the image */
+    opacity: 1;
+}
+
+#cutscene canvas.reveal {
     opacity: 1;
 }
 
@@ -546,6 +564,36 @@ h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
     background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.35) 0, rgba(0,0,0,0.35) 1px, transparent 2px, transparent 4px);
     opacity: 0.12;
     mix-blend-mode: multiply;
+}
+
+#bird-flock {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0; /* Behind canvas to be affected by the shader */
+    mix-blend-mode: multiply; /* Blend birds with the canvas content */
+    overflow: hidden; /* Hide birds before they are placed */
+}
+
+.bird {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0.8vw;
+    height: 0.8vw;
+    max-width: 10px;
+    max-height: 10px;
+    background-image: url(bird_flap_sprite.png);
+    background-size: 400% 100%;
+    animation: flap 0.4s steps(4) infinite;
+    will-change: transform;
+    filter: contrast(1.1) brightness(0.6) blur(0.5px);
+    opacity: 0;
+    transition: opacity 3.0s ease-in; /* Was 1.5s. */
+}
+
+@keyframes flap {
+  to { background-position: -400% 0; }
 }
 
 @media (max-width: 768px) and (orientation: portrait) {
