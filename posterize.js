@@ -129,6 +129,7 @@ export function applyPosterizeToImage(canvas, image, levels = 5.0, edgeMix = 0.1
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+  let texW = image.naturalWidth || image.width, texH = image.naturalHeight || image.height;
 
   const uTexel = gl.getUniformLocation(prog, 'uTexel');
   const uLevels = gl.getUniformLocation(prog, 'uLevels');
@@ -141,7 +142,7 @@ export function applyPosterizeToImage(canvas, image, levels = 5.0, edgeMix = 0.1
     const time = (performance.now() - startTime) / 1000.0;
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(prog);
-    gl.uniform2f(uTexel, 1.0 / image.naturalWidth, 1.0 / image.naturalHeight);
+    gl.uniform2f(uTexel, 1.0 / texW, 1.0 / texH);
     gl.uniform1f(uLevels, levels);
     gl.uniform1f(uEdgeMix, edgeMix);
     gl.uniform1f(uTime, time);
@@ -167,6 +168,7 @@ export function applyPosterizeToImage(canvas, image, levels = 5.0, edgeMix = 0.1
         window.removeEventListener('resize', resize);
         // Consider cleaning up other resources if this component can be destroyed
     },
+    setImage: (img) => { gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img); texW=img.width||img.naturalWidth; texH=img.height||img.naturalHeight; },
     setFogCoverage: (value) => {
         gl.useProgram(prog);
         gl.uniform1f(uFogCoverage, value);
