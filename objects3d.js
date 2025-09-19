@@ -134,6 +134,44 @@ export function createBarn(textureLoader) {
     chimney3.position.set(-BARN_WIDTH/2 - EXT_WIDTH/2 + 1, EXT_HEIGHT + 1, -4);
     barnGroup.add(chimney3);
 
+    // Door (front face, slightly left) with small awning and see-through window placeholder
+    {
+        const doorGroup = new THREE.Group();
+        const doorX = -2.5, doorY = 1.1, doorZ = BARN_DEPTH / 2 + 0.02;
+
+        const doorMat = new THREE.MeshStandardMaterial({ color: 0x3a2f2a, roughness: 0.92, metalness: 0.06 });
+        const door = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 2.2), doorMat);
+        door.position.set(doorX, doorY, doorZ);
+        door.castShadow = true; door.receiveShadow = false; doorGroup.add(door);
+
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0x1e1a18, roughness: 0.95 });
+        const frame = new THREE.Mesh(new THREE.PlaneGeometry(1.32, 2.28), frameMat);
+        frame.position.set(doorX, doorY, doorZ + 0.001); doorGroup.add(frame);
+
+        const windowGlass = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.65, 0.42),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, depthWrite: false })
+        );
+        windowGlass.position.set(doorX, doorY + 0.55, doorZ + 0.002);
+        doorGroup.add(windowGlass);
+
+        // Placeholder "inside view" plane (replace this material/texture later)
+        const insideView = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.63, 0.40),
+            new THREE.MeshBasicMaterial({ color: 0x0a0a0a })
+        );
+        insideView.position.set(doorX, doorY + 0.55, BARN_DEPTH / 2 + 0.015);
+        doorGroup.add(insideView);
+
+        // Small angled awning above door
+        const awning = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.6), roofMaterial);
+        awning.position.set(doorX, doorY + 1.35, doorZ + 0.001);
+        awning.rotation.x = -Math.PI * 0.18; awning.castShadow = true;
+        doorGroup.add(awning);
+
+        barnGroup.add(doorGroup);
+    }
+
     barnGroup.position.z = -15;
     return barnGroup;
 }
