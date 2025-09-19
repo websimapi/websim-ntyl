@@ -75,7 +75,7 @@ function animate() {
 
         const moveDeltaX = -velocity.x * delta, moveDeltaZ = -velocity.z * delta;
         const forward = new THREE.Vector3(); controls.getObject().getWorldDirection(forward); forward.y = 0; forward.normalize();
-        const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0), forward).normalize();
+        const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0,1,0)).normalize();
         const desired = forward.multiplyScalar(moveDeltaZ).add(right.multiplyScalar(moveDeltaX));
         const resolved = resolveCollision(player.position, desired);
         player.position.copy(resolved);
