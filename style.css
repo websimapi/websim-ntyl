@@ -691,7 +691,7 @@ h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
     justify-content: center;
     color: #fff;
     font-family: 'Creepster', cursive;
-    font-size: 2rem;
+    font-size: 1.6rem; /* slightly smaller to avoid overlap on mobile */
     text-shadow: 0 0 5px #000;
     pointer-events: none;
     opacity: 1;
