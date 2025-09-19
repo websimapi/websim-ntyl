@@ -4,6 +4,11 @@ let audioUnlocked = false;
 let backgroundAudioElement;
 let knockBuffers = [], uiHoverBuffer = null, tvStaticLoopBuffer = null, primaryKnockBuffer = null, gateCreakBuffer = null, gateThudBuffer = null, gateStuckBuffer = null;
 let knockTimeoutId = null, knockingActive = false;
+/* declare Howler instances and counters */
+let gateLongHowl = null, gateCreakHowl = null, gateThudHowl = null, gateStuckHowl = null;
+let gateShortPlayCount = 0;
+
+import { Howl, Howler } from 'howler';
 
 async function loadSound(url){
   try { const r=await fetch(url); const b=await r.arrayBuffer(); return await audioCtx.decodeAudioData(b); } catch(e){ console.error('Failed sound', url, e); return null; }
@@ -17,9 +22,18 @@ export async function loadAllSounds(){
   gateCreakBuffer = await loadSound('gate_long_creak.mp3');
   gateThudBuffer = await loadSound('knock_4.mp3');
   gateStuckBuffer = await loadSound('gate_creak.mp3');
+  // howler instances for reliable control
+  gateLongHowl = new Howl({ src: ['gate_long_creak.mp3'], loop: true, volume: 0.0 });
+  gateCreakHowl = new Howl({ src: ['gate_creak.mp3'], volume: 0.7 });
+  gateThudHowl  = new Howl({ src: ['knock_4.mp3'], volume: 0.9 });
+  gateStuckHowl = new Howl({ src: ['gate_creak.mp3'], volume: 0.7 });
 }
 export async function unlockAudio(){
-  if (audioUnlocked) return; if (audioCtx.state === 'suspended') await audioCtx.resume(); audioUnlocked = true;
+  if (audioUnlocked) return;
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
+  // also resume Howler's internal context where applicable
+  try { if (Howler.ctx && Howler.ctx.state === 'suspended') await Howler.ctx.resume(); } catch{}
+  audioUnlocked = true;
 }
 export function setupBackgroundAudio(){
   if (backgroundAudioElement) return;
@@ -53,38 +67,37 @@ export function playGateStuck(volume=0.7, rate=Math.random()*0.15+0.9){ if(gateS
 /* add long creak controller */
 let gateLongHandle = null;
 export function startGateLongCreak(volume=0.6){
-  if(!audioUnlocked || gateLongHandle || !gateCreakBuffer) return;
-  gateLongHandle = playSound(gateCreakBuffer, volume, null, true, 1.2);
+  if (!audioUnlocked || !gateLongHowl) return;
+  gateShortPlayCount = 0;
+  if (!gateLongHowl.playing()) { const id = gateLongHowl.play(); gateLongHowl.fade(0.0, volume, 1200, id); }
 }
 export function stopGateLongCreak(fadeOut=1.2){
-  const h=gateLongHandle; if(!h) return; gateLongHandle=null;
-  try{ h.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-    h.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime+fadeOut);
-    setTimeout(()=>{ try{ h.source.stop(); }catch{} }, fadeOut*1000);
-  }catch{}
+  if (!gateLongHowl) return;
+  const ids = gateLongHowl._sounds.map(s=>s._id);
+  ids.forEach(id=>{
+    if (fadeOut>0) { gateLongHowl.fade(gateLongHowl.volume(id), 0.0, fadeOut*1000, id); setTimeout(()=>{ try{ gateLongHowl.stop(id); }catch{} }, fadeOut*1000+20); }
+    else { try{ gateLongHowl.stop(id); }catch{} }
+  });
 }
 
 export function playGateFrameClank(intensity=1){
-  if(!audioUnlocked) return;
-  const t = audioCtx.currentTime;
-  const metalHit = gateThudBuffer || knockBuffers[3] || knockBuffers[0];
-
-  if (gateStuckBuffer) { // scrape/snag
-    const s = audioCtx.createBufferSource(); s.buffer = gateStuckBuffer; s.playbackRate.value = 0.9 + Math.random()*0.2;
-    const hp = audioCtx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value = 700 + Math.random()*600;
-    const g = audioCtx.createGain(); g.gain.value = 0.55 * intensity;
-    s.connect(hp).connect(g).connect(audioCtx.destination); s.start(t);
+  if (!audioUnlocked) return;
+  gateShortPlayCount++;
+  if (gateShortPlayCount === 2) stopGateLongCreak(0); // hard stop on second creak
+  // brief scrape/snag
+  if (gateStuckHowl) {
+    const id = gateStuckHowl.play(); gateStuckHowl.rate(0.9 + Math.random()*0.2, id);
+    gateStuckHowl.volume(0.55 * intensity, id);
   }
-  if (metalHit) { // heavy clank
-    const s = audioCtx.createBufferSource(); s.buffer = metalHit; s.playbackRate.value = 0.78 + Math.random()*0.12;
-    const lp = audioCtx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value = 3200;
-    const g = audioCtx.createGain(); g.gain.value = 0.9 * intensity;
-    s.connect(lp).connect(g).connect(audioCtx.destination); s.start(t + 0.015);
+  // heavy clank
+  if (gateThudHowl) {
+    const id = gateThudHowl.play(); gateThudHowl.rate(0.78 + Math.random()*0.12, id);
+    gateThudHowl.volume(0.9 * intensity, id);
   }
-  if (gateCreakBuffer) { // brief squeal tail
-    const s = audioCtx.createBufferSource(); s.buffer = gateCreakBuffer; s.playbackRate.value = 1.12 + Math.random()*0.12;
-    const g = audioCtx.createGain(); g.gain.value = 0.32 * intensity;
-    s.connect(g).connect(audioCtx.destination); s.start(t + 0.06);
+  // brief squeal tail
+  if (gateCreakHowl) {
+    const id = gateCreakHowl.play(); gateCreakHowl.rate(1.12 + Math.random()*0.12, id);
+    gateCreakHowl.volume(0.32 * intensity, id);
   }
 }
 
