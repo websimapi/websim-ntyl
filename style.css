@@ -668,6 +668,40 @@ h1 .not-word.pulse-red { animation: notPulse 1.2s ease; }
   to { background-position: -400% 0; }
 }
 
+#scene-3d-container {
+    position: fixed;
+    inset: 0;
+    z-index: 10003;
+    background: #000;
+    display: none;
+    cursor: pointer;
+}
+
+#scene-3d-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#scene-3d-instructions {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Creepster', cursive;
+    font-size: 2rem;
+    text-shadow: 0 0 5px #000;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+#scene-3d-instructions.hidden {
+    opacity: 0;
+}
+
 @media (max-width: 768px) and (orientation: portrait) {
     #app {
         grid-template-columns: 1fr 2.5fr 1fr; /* Give center more space on portrait */

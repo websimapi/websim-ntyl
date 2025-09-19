@@ -2,6 +2,7 @@ import { applyPosterizeToImage } from './posterize.js';
 import { audioCtx, getBackgroundAudio, playGateCreak, startGateLongCreak, stopGateLongCreak, playGateThud, playGateStuck, playGateFrameClank } from './audio.js';
 import { animateBirds, stopBirds } from './birds.js';
 import { parseGIF, decompressFrames } from 'https://esm.sh/gifuct-js@2.0.0';
+import { initScene3D, stopScene3D } from './scene3d.js';
 
 const scenes = [
   { // Scene 1: Landscape with birds
@@ -63,6 +64,14 @@ const scenes = [
     onEnd: () => {
       stopGateLongCreak(1.2);
       // This is the last scene for now. It could fade to black or loop.
+      if (csElement) {
+        csElement.classList.add('fade-out-fast');
+        setTimeout(() => {
+          if (csElement) csElement.style.display = 'none';
+          stopScene3D(); // cleanup previous if any
+          initScene3D();
+        }, 1000);
+      }
     }
   }
 ];
@@ -168,6 +177,11 @@ async function transitionToScene(sceneIndex) {
         stopGateLongCreak(0.5); // Quicker fade out as the gate stops moving
         if (autoSkipTimeout) clearTimeout(autoSkipTimeout); // also cancel the scene skip timeout
         if (gateFrameClickHandler) { csElement.removeEventListener('click', gateFrameClickHandler); gateFrameClickHandler = null; }
+        
+        // This is the end of the final cutscene. Transition to 3D.
+        if (currentSceneIndex === scenes.length - 1) {
+            scenes[currentSceneIndex].onEnd();
+        }
       }
     };
 
